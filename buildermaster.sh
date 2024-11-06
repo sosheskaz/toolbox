@@ -5,7 +5,7 @@ set -euo pipefail
 export DOCKER_BUILDKIT=1
 
 PLATFORMS=("linux/amd64" "linux/arm64")
-REPOS=("ericmiller/toolbox")
+REPOS=("ericmiller/toolbox" "ghcr.io/sosheskaz/toolbox")
 TARGETS=(lite standard heavy)
 
 PLATFORMS_CSV="$(IFS=,; echo "${PLATFORMS[*]}")"
