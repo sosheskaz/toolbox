@@ -1,16 +1,13 @@
 ARG CRANE_VERSION=v0.20.2
-ARG GO_VERSION=1.23.2
-ARG GOLANGCI_LINT_VERSION=v1.61.0
-ARG HELM_VERSION=3.16.2
-ARG KUBECTL_VERSION=1.31.2
-ARG YQ_VERSION=4.44.3
+ARG GO_VERSION=1.23.4
+ARG GOLANGCI_LINT_VERSION=v1.62.2
+ARG HELM_VERSION=3.16.4
+ARG KUBECTL_VERSION=1.32.0
+ARG YQ_VERSION=4.44.6
 
-FROM cgr.dev/chainguard/crane:latest AS crane
-FROM alpine/helm:3 AS helm
-FROM bitnami/kubectl:latest AS kubectl
-FROM mikefarah/yq:4 AS yq
-FROM golang:1.23 AS golang
-FROM golangci/golangci-lint:latest AS golangci-lint
+FROM mikefarah/yq:${YQ_VERSION} AS yq
+FROM golang:${GO_VERSION} AS golang
+FROM golangci/golangci-lint:${GOLANGCI_LINT_VERSION} AS golangci-lint
 
 FROM --platform=$BUILDPLATFORM alpine:3.20 AS downloader
 
@@ -24,6 +21,32 @@ RUN curl -fsSL https://github.com/kubernetes-sigs/kustomize/releases/download/ku
   && tar -xzf kustomize.tar.gz \
   && mv kustomize /kustomize \
   && rm kustomize.tar.gz
+
+FROM --platform=$BUILDPLATFORM downloader AS crane
+ARG CRANE_VERSION=v0.20.2
+ARG TARGETOS
+ARG TARGETARCH
+RUN (if [[ "${TARGETARCH}" = "amd64" ]]; then curl -fsSL https://github.com/google/go-containerregistry/releases/download/${CRANE_VERSION}/go-containerregistry_${TARGETOS}_x86_64.tar.gz -o crane.tar.gz; \
+  else curl -fsSL https://github.com/google/go-containerregistry/releases/download/${CRANE_VERSION}/go-containerregistry_${TARGETOS}_${TARGETARCH}.tar.gz -o crane.tar.gz; fi) \
+  && tar -xzf crane.tar.gz \
+  && mv crane /crane \
+  && rm crane.tar.gz
+
+FROM --platform=$BUILDPLATFORM downloader AS helm
+ARG HELM_VERSION=3.16.4
+ARG TARGETOS
+ARG TARGETARCH
+RUN curl -fsSL https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz -o helm.tar.gz \
+  && tar -xzf helm.tar.gz \
+  && mv ${TARGETOS}-${TARGETARCH}/helm /helm \
+  && rm -rf ${TARGETOS}-${TARGETARCH} helm.tar.gz
+
+FROM --platform=$BUILDPLATFORM downloader AS kubectl
+ARG KUBECTL_VERSION=1.32.0
+ARG TARGETOS
+ARG TARGETARCH
+RUN curl -fsSL --compressed https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/${TARGETOS}/${TARGETARCH}/kubectl -o /kubectl \
+  && chmod +x /kubectl
 
 FROM --platform=$BUILDPLATFORM downloader AS kcl
 
@@ -55,7 +78,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=yq /usr/bin/yq /usr/bin/yq
-COPY --from=crane /usr/bin/crane /usr/bin/crane
+COPY --from=crane /crane /usr/bin/crane
 
 ENTRYPOINT ["/bin/bash"]
 
@@ -68,8 +91,8 @@ RUN apt-get update \
     ncat \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --from=helm /usr/bin/helm /usr/bin/helm
-COPY --from=kubectl /opt/bitnami/kubectl/bin/kubectl /usr/bin/kubectl
+COPY --from=helm /helm /helm
+COPY --from=kubectl /kubectl /usr/bin/kubectl
 COPY --from=kustomize /kustomize /usr/bin/kustomize
 
 FROM standard AS heavy
