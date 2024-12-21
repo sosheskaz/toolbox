@@ -24,3 +24,4 @@ jobs:
           body: ${{ steps.selfupdate.outputs.stdout }}
           branch: 'auto-update'
           base: 'main'
+          reviewers: 'sosheskaz'
