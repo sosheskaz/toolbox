@@ -11,7 +11,14 @@ FROM golangci/golangci-lint:${GOLANGCI_LINT_VERSION} AS golangci-lint
 
 FROM --platform=$BUILDPLATFORM alpine:3.20 AS downloader
 
-RUN apk --no-cache add curl
+RUN apk --no-cache add \
+    curl \
+    pigz \
+    tar \
+  && ln -s /usr/bin/pigz gzip \
+  && ln -s /usr/bin/pigz gunzip \
+  && ln -s /usr/bin/pigz gzcat \
+  && ln -s /usr/bin/pigz zcat
 
 FROM --platform=$BUILDPLATFORM downloader AS kustomize
 ARG KUSTOMIZE_VERSION=v5.5.0
