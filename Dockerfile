@@ -118,6 +118,8 @@ COPY --from=gh /usr/bin/gh /usr/bin/gh
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     nmap \
+    python3 \
+    python3-pip \
   && rm -rf /var/lib/apt/lists/*
 
 FROM standard AS default
