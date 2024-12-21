@@ -1,0 +1,26 @@
+name: Auto-Update
+
+on:
+  schedule:
+    - cron: '0 2 * * 3'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: docker://ghcr.io/sosheskaz/toolbox:heavy
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: auto-update
+        id: selfupdate
+        run: ./selfupdate.sh
+
+      - name: Open PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: 'Update versions'
+          title: 'chore: auto-update versions'
+          body: ${{ steps.selfupdate.outputs.stdout }}
+          branch: 'auto-update'
+          base: 'main'
