@@ -61,6 +61,15 @@ RUN mkdir -p /tmp/kcl \
   && cd - \
   && rm -rf /tmp/kcl
 
+FROM --platform=$BUILDPLATFORM downloader AS gh
+ARG GITHUB_CLI_VERSION=2.64.0
+ARG TARGETOS
+ARG TARGETARCH
+RUN curl -fsSL https://github.com/cli/cli/releases/download/v${GITHUB_CLI_VERSION}/gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz -o gh.tar.gz \
+  && tar -xzf gh.tar.gz \
+  && mv gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}/bin/gh /usr/bin/gh \
+  && rm -rf gh.tar.gz gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}
+
 FROM debian:bookworm AS lite
 
 RUN apt-get update \
@@ -97,10 +106,10 @@ COPY --from=kustomize /kustomize /usr/bin/kustomize
 
 FROM standard AS heavy
 COPY --from=kcl /usr/bin/kcl /usr/bin/kcl
+COPY --from=gh /usr/bin/gh /usr/bin/gh
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-    gh \
     nmap \
   && rm -rf /var/lib/apt/lists/*
 

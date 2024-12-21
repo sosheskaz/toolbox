@@ -14,4 +14,5 @@ gh_latest() {
   KUBECTL_VERSION="$(gh_latest kubernetes/kubernetes | sed 's/^v//g' )" \
   YQ_VERSION="$(gh_latest mikefarah/yq | sed 's/^v//g')" \
   KUSTOMIZE_VERSION="$(gh_latest kubernetes-sigs/kustomize | sed 's/kustomize\///g')" \
+  GITHUB_CLI_VERSION="$(gh_latest cli/cli | sed 's/^v//g')" \
   --write
