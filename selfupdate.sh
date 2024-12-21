@@ -15,4 +15,5 @@ gh_latest() {
   YQ_VERSION="$(gh_latest mikefarah/yq | sed 's/^v//g')" \
   KUSTOMIZE_VERSION="$(gh_latest kubernetes-sigs/kustomize | sed 's/kustomize\///g')" \
   GITHUB_CLI_VERSION="$(gh_latest cli/cli | sed 's/^v//g')" \
+  DEBIAN_VERSION="$(crane ls debian | grep -E '^[0-9]+\.[0-9]+$' | grep -Ev '\.0$' | sort -V | tail -n1)" \
   --write
