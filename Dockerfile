@@ -1,10 +1,10 @@
-ARG CRANE_VERSION=v0.20.2
-ARG GO_VERSION=1.23.4
-ARG GOLANGCI_LINT_VERSION=v1.62.2
-ARG HELM_VERSION=3.16.4
-ARG KUBECTL_VERSION=1.32.0
-ARG YQ_VERSION=4.44.6
-ARG DEBIAN_VERSION=12.8
+ARG CRANE_VERSION=v0.20.3
+ARG GO_VERSION=1.24.0
+ARG GOLANGCI_LINT_VERSION=v1.64.5
+ARG HELM_VERSION=3.17.1
+ARG KUBECTL_VERSION=1.32.2
+ARG YQ_VERSION=4.45.1
+ARG DEBIAN_VERSION=12.9
 
 FROM mikefarah/yq:${YQ_VERSION} AS yq
 FROM golang:${GO_VERSION} AS golang
@@ -22,7 +22,7 @@ RUN apk --no-cache add \
   && ln -s /usr/bin/pigz zcat
 
 FROM --platform=$BUILDPLATFORM downloader AS kustomize
-ARG KUSTOMIZE_VERSION=v5.5.0
+ARG KUSTOMIZE_VERSION=v5.6.0
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz -o kustomize.tar.gz \
@@ -31,7 +31,7 @@ RUN curl -fsSL https://github.com/kubernetes-sigs/kustomize/releases/download/ku
   && rm kustomize.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS crane
-ARG CRANE_VERSION=v0.20.2
+ARG CRANE_VERSION=v0.20.3
 ARG TARGETOS
 ARG TARGETARCH
 RUN (if [[ "${TARGETARCH}" = "amd64" ]]; then curl -fsSL https://github.com/google/go-containerregistry/releases/download/${CRANE_VERSION}/go-containerregistry_${TARGETOS}_x86_64.tar.gz -o crane.tar.gz; \
@@ -41,7 +41,7 @@ RUN (if [[ "${TARGETARCH}" = "amd64" ]]; then curl -fsSL https://github.com/goog
   && rm crane.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS helm
-ARG HELM_VERSION=3.16.4
+ARG HELM_VERSION=3.17.1
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz -o helm.tar.gz \
@@ -50,7 +50,7 @@ RUN curl -fsSL https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARC
   && rm -rf ${TARGETOS}-${TARGETARCH} helm.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS kubectl
-ARG KUBECTL_VERSION=1.32.0
+ARG KUBECTL_VERSION=1.32.2
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL --compressed https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/${TARGETOS}/${TARGETARCH}/kubectl -o /kubectl \
@@ -70,7 +70,7 @@ RUN mkdir -p /tmp/kcl \
   && rm -rf /tmp/kcl
 
 FROM --platform=$BUILDPLATFORM downloader AS gh
-ARG GITHUB_CLI_VERSION=2.64.0
+ARG GITHUB_CLI_VERSION=2.67.0
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL https://github.com/cli/cli/releases/download/v${GITHUB_CLI_VERSION}/gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz -o gh.tar.gz \
