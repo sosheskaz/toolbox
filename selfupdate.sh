@@ -3,7 +3,7 @@
 cd "$(dirname "$0")"
 
 gh_latest() {
-  gh release list -R "$1" --exclude-drafts --exclude-pre-releases --json=isLatest,tagName | jq -r 'first.tagName'
+  gh release list -R "$1" --exclude-drafts --exclude-pre-releases --json=isLatest,tagName | jq -r 'map(select(.isLatest))|first.tagName'
 }
 
 ./update-arg.py \
