@@ -1,10 +1,10 @@
 ARG CRANE_VERSION=v0.20.3
-ARG GO_VERSION=1.24.1
-ARG GOLANGCI_LINT_VERSION=v1.64.7
-ARG HELM_VERSION=3.17.1
-ARG KUBECTL_VERSION=1.32.2
+ARG GO_VERSION=1.24.2
+ARG GOLANGCI_LINT_VERSION=v2.0.2
+ARG HELM_VERSION=3.17.2
+ARG KUBECTL_VERSION=1.32.3
 ARG YQ_VERSION=4.45.1
-ARG DEBIAN_VERSION=12.9
+ARG DEBIAN_VERSION=12.10
 
 FROM mikefarah/yq:${YQ_VERSION} AS yq
 FROM golang:${GO_VERSION} AS golang
@@ -41,7 +41,7 @@ RUN (if [[ "${TARGETARCH}" = "amd64" ]]; then curl -fsSL https://github.com/goog
   && rm crane.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS helm
-ARG HELM_VERSION=3.17.1
+ARG HELM_VERSION=3.17.2
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz -o helm.tar.gz \
@@ -50,7 +50,7 @@ RUN curl -fsSL https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARC
   && rm -rf ${TARGETOS}-${TARGETARCH} helm.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS kubectl
-ARG KUBECTL_VERSION=1.32.2
+ARG KUBECTL_VERSION=1.32.3
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL --compressed https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/${TARGETOS}/${TARGETARCH}/kubectl -o /kubectl \
@@ -70,7 +70,7 @@ RUN mkdir -p /tmp/kcl \
   && rm -rf /tmp/kcl
 
 FROM --platform=$BUILDPLATFORM downloader AS gh
-ARG GITHUB_CLI_VERSION=2.68.1
+ARG GITHUB_CLI_VERSION=2.69.0
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL https://github.com/cli/cli/releases/download/v${GITHUB_CLI_VERSION}/gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz -o gh.tar.gz \
