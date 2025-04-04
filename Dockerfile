@@ -108,7 +108,7 @@ RUN apt-get update \
     ncat \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --from=helm /helm /helm
+COPY --from=helm /helm /usr/bin/helm
 COPY --from=kubectl /kubectl /usr/bin/kubectl
 COPY --from=kustomize /kustomize /usr/bin/kustomize
 
