@@ -16,4 +16,10 @@ gh_latest() {
   KUSTOMIZE_VERSION="$(gh_latest kubernetes-sigs/kustomize | sed 's/kustomize\///g')" \
   GITHUB_CLI_VERSION="$(gh_latest cli/cli | sed 's/^v//g')" \
   DEBIAN_VERSION="$(crane ls debian | grep -E '^[0-9]+\.[0-9]+$' | grep -Ev '\.0$' | sort -V | tail -n1)" \
+  KUBE_LINTER_VERSION="$(crane ls stackrox/kube-linter | sort -V | tail -n1)" \
+  SHELLCHECK_VERSION="$(crane ls koalaman/shellcheck | sort -V | tail -n1)" \
+  YAMLLINT_VERSION="$(gh_latest adrienverge/yamllint | sed 's/^v//g')" \
+  ANSIBLE_LINT_VERSION="$(gh_latest ansible/ansible-lint | sed 's/^v//g' )" \
+  RUFF_VERSION="$(gh_latest astral-sh/ruff)" \
+  HADOLINT_VERSION="$(crane ls hadolint/hadolint | grep -E '^[0-9]+\.[0-9]+$' | sort -V | tail -n1)" \
   --write
