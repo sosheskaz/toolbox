@@ -1,12 +1,12 @@
-ARG CRANE_VERSION=v0.20.4
+ARG CRANE_VERSION=v0.20.5
 ARG GO_VERSION=1.24.3
 ARG GOLANGCI_LINT_VERSION=v2.1.6
-ARG HADOLINT_VERSION=v2.12.0
+ARG HADOLINT_VERSION=
 ARG HELM_VERSION=3.18.0
 ARG KUBECTL_VERSION=1.33.1
 ARG SHELLCHECK_VERSION=v0.10.0
 ARG YQ_VERSION=4.45.4
-ARG DEBIAN_VERSION=12.10
+ARG DEBIAN_VERSION=12.11
 
 FROM hadolint/hadolint:${HADOLINT_VERSION} AS hadolint
 FROM mikefarah/yq:${YQ_VERSION} AS yq
@@ -35,7 +35,7 @@ RUN curl -fsSL https://github.com/kubernetes-sigs/kustomize/releases/download/ku
   && rm kustomize.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS crane
-ARG CRANE_VERSION=v0.20.4
+ARG CRANE_VERSION=v0.20.5
 ARG TARGETOS
 ARG TARGETARCH
 RUN (if [[ "${TARGETARCH}" = "amd64" ]]; then curl -fsSL https://github.com/google/go-containerregistry/releases/download/${CRANE_VERSION}/go-containerregistry_${TARGETOS}_x86_64.tar.gz -o crane.tar.gz; \
@@ -61,7 +61,7 @@ RUN curl -fsSL --compressed https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/${
   && chmod +x /kubectl
 
 FROM --platform=$BUILDPLATFORM downloader AS kube-linter
-ARG KUBE_LINTER_VERSION=v0.7.2
+ARG KUBE_LINTER_VERSION=v0.7.2-alpine
 ARG TARGETOS
 ARG TARGETARCH
 RUN suffix=${TARGETOS}_${TARGETARCH}; if [[ "${TARGETARCH}" == "amd64" ]]; then suffix="${TARGETOS}"; fi; \
@@ -127,7 +127,7 @@ RUN virtualenv /opt/uv \
   && /opt/uv/bin/pip install uv==${UV_VERSION} \
   && ln -s /opt/uv/bin/uv /usr/bin/
 
-ARG ANSIBLE_LINT_VERSION=25.4.0
+ARG ANSIBLE_LINT_VERSION=25.5.0
 ARG RUFF_VERSION=0.11.11
 ARG YAMLLINT_VERSION=1.37.1
 RUN uv tool install ansible-lint==${ANSIBLE_LINT_VERSION} \
