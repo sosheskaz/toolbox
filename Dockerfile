@@ -93,8 +93,7 @@ RUN curl -fsSL https://github.com/cli/cli/releases/download/v${GITHUB_CLI_VERSIO
 
 FROM debian:bookworm AS lite
 
-RUN --mount=type=cache,target=/var/lib/apt/lists --mount=type=cache,target=/var/cache/apt \
-  apt-get update \
+RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     bash \
     curl \
@@ -106,21 +105,22 @@ RUN --mount=type=cache,target=/var/lib/apt/lists --mount=type=cache,target=/var/
     inetutils-ping \
     jq \
     wget \
-    xxd
+    xxd \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY --from=yq /usr/bin/yq /usr/bin/yq
 COPY --from=crane /crane /usr/bin/crane
 
-ENTRYPOINT ["/bin/bash"]
-
 FROM lite AS lint
 
-RUN --mount=type=cache,target=/var/lib/apt/lists --mount=type=cache,target=/var/cache/apt \
-  apt-get update \
+RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
-    python3-virtualenv
+    python3-virtualenv \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 ARG UV_VERSION=0.7.8
 RUN virtualenv /opt/uv \
@@ -144,12 +144,13 @@ COPY --from=hadolint /bin/hadolint /usr/bin/hadolint
 
 FROM lite AS standard
 
-RUN --mount=type=cache,target=/var/lib/apt/lists  --mount=type=cache,target=/var/cache/apt \
-  apt-get update \
+RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     curl \
     git \
-    ncat
+    ncat \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY --from=helm /helm /usr/bin/helm
 COPY --from=kubectl /kubectl /usr/bin/kubectl
@@ -159,11 +160,12 @@ FROM standard AS heavy
 COPY --from=kcl /usr/bin/kcl /usr/bin/kcl
 COPY --from=gh /usr/bin/gh /usr/bin/gh
 
-RUN --mount=type=cache,target=/var/lib/apt/lists --mount=type=cache,target=/var/cache/apt \
-  apt-get update \
+RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     nmap \
     python3 \
-    python3-pip
+    python3-pip \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 FROM standard AS default

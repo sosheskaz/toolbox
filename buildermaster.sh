@@ -33,7 +33,6 @@ do
     fi
   done
 
-
   docker buildx build \
     --platform="${PLATFORMS_CSV}" \
     "${TAGARGS[@]}" \
