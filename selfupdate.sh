@@ -18,7 +18,7 @@ gh_latest() {
   GITHUB_CLI_VERSION="$(gh_latest cli/cli | sed 's/^v//g')" \
   DEBIAN_VERSION="$(crane ls debian | grep -E '^[0-9]+\.[0-9]+$' | sort -V | tail -n1)" \
   KUBE_LINTER_VERSION="$(gh_latest stackrox/kube-linter | sed 's/^v//g')" \
-  SHELLCHECK_VERSION="$(gh_latest koalaman/shellcheck | sed 's/^v//g')" \
+  SHELLCHECK_VERSION="v$(gh_latest koalaman/shellcheck | sed 's/^v//g')" \
   YAMLLINT_VERSION="$(gh_latest adrienverge/yamllint | sed 's/^v//g')" \
   ANSIBLE_LINT_VERSION="$(gh_latest ansible/ansible-lint | sed 's/^v//g' )" \
   RUFF_VERSION="$(gh_latest astral-sh/ruff)" \
