@@ -141,6 +141,7 @@ RUN ln -s /opt/go/bin/* /usr/bin
 COPY --from=golangci-lint /usr/bin/golangci-lint /usr/bin/golangci-lint
 COPY --from=shellcheck /bin/shellcheck /usr/bin/shellcheck
 COPY --from=hadolint /bin/hadolint /usr/bin/hadolint
+COPY --from=kube-linter /usr/bin/kube-linter /usr/bin/kube-linter
 
 FROM lite AS standard
 
