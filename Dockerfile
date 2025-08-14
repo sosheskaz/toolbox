@@ -91,7 +91,7 @@ RUN curl -fsSL https://github.com/cli/cli/releases/download/v${GITHUB_CLI_VERSIO
   && mv gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}/bin/gh /usr/bin/gh \
   && rm -rf gh.tar.gz gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}
 
-FROM debian:trixie AS lite
+FROM debian:${DEBIAN_VERSION} AS lite
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
