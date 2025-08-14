@@ -65,7 +65,7 @@ ARG KUBE_LINTER_VERSION=0.7.5
 ARG TARGETOS
 ARG TARGETARCH
 RUN suffix=${TARGETOS}_${TARGETARCH}; if [[ "${TARGETARCH}" == "amd64" ]]; then suffix="${TARGETOS}"; fi; \
-  curl -fsSL https://github.com/stackrox/kube-linter/releases/download/${KUBE_LINTER_VERSION}/kube-linter-$suffix.tar.gz -o kube-linter.tar.gz \
+  curl -fsSL https://github.com/stackrox/kube-linter/releases/download/v${KUBE_LINTER_VERSION}/kube-linter-${suffix}.tar.gz -o kube-linter.tar.gz \
   && tar -C /usr/bin -xvzf kube-linter.tar.gz \
   && rm kube-linter.tar.gz
 
