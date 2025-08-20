@@ -2,7 +2,7 @@ ARG CRANE_VERSION=v0.20.6
 ARG GO_VERSION=1.25.0
 ARG GOLANGCI_LINT_VERSION=v2.4.0
 ARG HADOLINT_VERSION=v2.12.0
-ARG HELM_VERSION=3.18.5
+ARG HELM_VERSION=3.18.6
 ARG KUBECTL_VERSION=1.33.4
 ARG SHELLCHECK_VERSION=v0.11.0
 ARG YQ_VERSION=4.47.1
@@ -45,7 +45,7 @@ RUN (if [[ "${TARGETARCH}" = "amd64" ]]; then curl -fsSL https://github.com/goog
   && rm crane.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS helm
-ARG HELM_VERSION=3.18.5
+ARG HELM_VERSION=3.18.6
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz -o helm.tar.gz \
@@ -128,7 +128,7 @@ RUN virtualenv /opt/uv \
   && ln -s /opt/uv/bin/uv /usr/bin/
 
 ARG ANSIBLE_LINT_VERSION=25.8.1
-ARG RUFF_VERSION=0.12.8
+ARG RUFF_VERSION=0.12.9
 ARG YAMLLINT_VERSION=1.37.1
 RUN uv tool install ansible-lint==${ANSIBLE_LINT_VERSION} \
   && uv tool install ruff==${RUFF_VERSION} \
