@@ -1,12 +1,12 @@
 ARG CRANE_VERSION=v0.20.6
-ARG GO_VERSION=1.25.0
+ARG GO_VERSION=1.25.1
 ARG GOLANGCI_LINT_VERSION=v2.4.0
-ARG HADOLINT_VERSION=v2.12.0
+ARG HADOLINT_VERSION=v2.13.1
 ARG HELM_VERSION=3.18.6
-ARG KUBECTL_VERSION=1.33.4
+ARG KUBECTL_VERSION=1.34.0
 ARG SHELLCHECK_VERSION=v0.11.0
-ARG YQ_VERSION=4.47.1
-ARG DEBIAN_VERSION=13.0
+ARG YQ_VERSION=4.47.2
+ARG DEBIAN_VERSION=13.1
 
 FROM hadolint/hadolint:${HADOLINT_VERSION} AS hadolint
 FROM mikefarah/yq:${YQ_VERSION} AS yq
@@ -54,7 +54,7 @@ RUN curl -fsSL https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARC
   && rm -rf ${TARGETOS}-${TARGETARCH} helm.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS kubectl
-ARG KUBECTL_VERSION=1.33.4
+ARG KUBECTL_VERSION=1.34.0
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL --compressed https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/${TARGETOS}/${TARGETARCH}/kubectl -o /kubectl \
@@ -83,7 +83,7 @@ RUN mkdir -p /tmp/kcl \
   && rm -rf /tmp/kcl
 
 FROM --platform=$BUILDPLATFORM downloader AS gh
-ARG GITHUB_CLI_VERSION=2.76.2
+ARG GITHUB_CLI_VERSION=2.79.0
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL https://github.com/cli/cli/releases/download/v${GITHUB_CLI_VERSION}/gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz -o gh.tar.gz \
@@ -127,8 +127,8 @@ RUN virtualenv /opt/uv \
   && /opt/uv/bin/pip install uv==${UV_VERSION} \
   && ln -s /opt/uv/bin/uv /usr/bin/
 
-ARG ANSIBLE_LINT_VERSION=25.8.1
-ARG RUFF_VERSION=0.12.9
+ARG ANSIBLE_LINT_VERSION=25.8.2
+ARG RUFF_VERSION=0.12.12
 ARG YAMLLINT_VERSION=1.37.1
 RUN uv tool install ansible-lint==${ANSIBLE_LINT_VERSION} \
   && uv tool install ruff==${RUFF_VERSION} \
