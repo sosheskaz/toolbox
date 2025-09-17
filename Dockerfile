@@ -2,8 +2,8 @@ ARG CRANE_VERSION=v0.20.6
 ARG GO_VERSION=1.25.1
 ARG GOLANGCI_LINT_VERSION=v2.4.0
 ARG HADOLINT_VERSION=v2.13.1
-ARG HELM_VERSION=3.18.6
-ARG KUBECTL_VERSION=1.34.0
+ARG HELM_VERSION=3.19.0
+ARG KUBECTL_VERSION=1.34.1
 ARG SHELLCHECK_VERSION=v0.11.0
 ARG YQ_VERSION=4.47.2
 ARG DEBIAN_VERSION=13.1
@@ -45,7 +45,7 @@ RUN (if [[ "${TARGETARCH}" = "amd64" ]]; then curl -fsSL https://github.com/goog
   && rm crane.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS helm
-ARG HELM_VERSION=3.18.6
+ARG HELM_VERSION=3.19.0
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz -o helm.tar.gz \
@@ -54,14 +54,14 @@ RUN curl -fsSL https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARC
   && rm -rf ${TARGETOS}-${TARGETARCH} helm.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS kubectl
-ARG KUBECTL_VERSION=1.34.0
+ARG KUBECTL_VERSION=1.34.1
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL --compressed https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/${TARGETOS}/${TARGETARCH}/kubectl -o /kubectl \
   && chmod +x /kubectl
 
 FROM --platform=$BUILDPLATFORM downloader AS kube-linter
-ARG KUBE_LINTER_VERSION=0.7.5
+ARG KUBE_LINTER_VERSION=0.7.6
 ARG TARGETOS
 ARG TARGETARCH
 RUN suffix=${TARGETOS}_${TARGETARCH}; if [[ "${TARGETARCH}" == "amd64" ]]; then suffix="${TARGETOS}"; fi; \
@@ -127,8 +127,8 @@ RUN virtualenv /opt/uv \
   && /opt/uv/bin/pip install uv==${UV_VERSION} \
   && ln -s /opt/uv/bin/uv /usr/bin/
 
-ARG ANSIBLE_LINT_VERSION=25.8.2
-ARG RUFF_VERSION=0.12.12
+ARG ANSIBLE_LINT_VERSION=25.9.0
+ARG RUFF_VERSION=0.13.0
 ARG YAMLLINT_VERSION=1.37.1
 RUN uv tool install ansible-lint==${ANSIBLE_LINT_VERSION} \
   && uv tool install ruff==${RUFF_VERSION} \
