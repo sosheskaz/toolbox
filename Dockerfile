@@ -128,7 +128,7 @@ RUN virtualenv /opt/uv \
   && ln -s /opt/uv/bin/uv /usr/bin/
 
 ARG ANSIBLE_LINT_VERSION=25.9.0
-ARG RUFF_VERSION=0.13.1
+ARG RUFF_VERSION=0.13.2
 ARG YAMLLINT_VERSION=1.37.1
 RUN uv tool install ansible-lint==${ANSIBLE_LINT_VERSION} \
   && uv tool install ruff==${RUFF_VERSION} \
