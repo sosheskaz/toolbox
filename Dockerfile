@@ -83,7 +83,7 @@ RUN mkdir -p /tmp/kcl \
   && rm -rf /tmp/kcl
 
 FROM --platform=$BUILDPLATFORM downloader AS gh
-ARG GITHUB_CLI_VERSION=2.81.0
+ARG GITHUB_CLI_VERSION=2.82.1
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL https://github.com/cli/cli/releases/download/v${GITHUB_CLI_VERSION}/gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz -o gh.tar.gz \
@@ -128,7 +128,7 @@ RUN virtualenv /opt/uv \
   && ln -s /opt/uv/bin/uv /usr/bin/
 
 ARG ANSIBLE_LINT_VERSION=25.9.2
-ARG RUFF_VERSION=0.14.0
+ARG RUFF_VERSION=0.14.2
 ARG YAMLLINT_VERSION=1.37.1
 RUN uv tool install ansible-lint==${ANSIBLE_LINT_VERSION} \
   && uv tool install ruff==${RUFF_VERSION} \
