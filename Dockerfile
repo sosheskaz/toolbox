@@ -1,8 +1,8 @@
 ARG CRANE_VERSION=v0.20.6
-ARG GO_VERSION=1.25.3
+ARG GO_VERSION=1.25.4
 ARG GOLANGCI_LINT_VERSION=v2.6.1
 ARG HADOLINT_VERSION=v2.14.0
-ARG HELM_VERSION=3.19.0
+ARG HELM_VERSION=3.19.1
 ARG KUBECTL_VERSION=1.34.1
 ARG SHELLCHECK_VERSION=v0.11.0
 ARG YQ_VERSION=4.48.1
@@ -26,7 +26,7 @@ RUN apk --no-cache add \
   && ln -s /usr/bin/pigz zcat
 
 FROM --platform=$BUILDPLATFORM downloader AS kustomize
-ARG KUSTOMIZE_VERSION=v5.7.1
+ARG KUSTOMIZE_VERSION=v5.8.0
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz -o kustomize.tar.gz \
@@ -45,7 +45,7 @@ RUN (if [[ "${TARGETARCH}" = "amd64" ]]; then curl -fsSL https://github.com/goog
   && rm crane.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS helm
-ARG HELM_VERSION=3.19.0
+ARG HELM_VERSION=3.19.1
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz -o helm.tar.gz \
@@ -127,8 +127,8 @@ RUN virtualenv /opt/uv \
   && /opt/uv/bin/pip install uv==${UV_VERSION} \
   && ln -s /opt/uv/bin/uv /usr/bin/
 
-ARG ANSIBLE_LINT_VERSION=25.9.2
-ARG RUFF_VERSION=0.14.3
+ARG ANSIBLE_LINT_VERSION=25.11.0
+ARG RUFF_VERSION=0.14.4
 ARG YAMLLINT_VERSION=1.37.1
 RUN uv tool install ansible-lint==${ANSIBLE_LINT_VERSION} \
   && uv tool install ruff==${RUFF_VERSION} \
