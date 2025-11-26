@@ -1,11 +1,11 @@
-ARG CRANE_VERSION=v0.20.6
+ARG CRANE_VERSION=v0.20.7
 ARG GO_VERSION=1.25.4
 ARG GOLANGCI_LINT_VERSION=v2.6.2
 ARG HADOLINT_VERSION=v2.14.0
-ARG HELM_VERSION=4.0.0
+ARG HELM_VERSION=4.0.1
 ARG KUBECTL_VERSION=1.34.2
 ARG SHELLCHECK_VERSION=v0.11.0
-ARG YQ_VERSION=4.48.2
+ARG YQ_VERSION=4.49.2
 ARG DEBIAN_VERSION=13.2
 
 FROM hadolint/hadolint:${HADOLINT_VERSION} AS hadolint
@@ -35,7 +35,7 @@ RUN curl -fsSL https://github.com/kubernetes-sigs/kustomize/releases/download/ku
   && rm kustomize.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS crane
-ARG CRANE_VERSION=v0.20.6
+ARG CRANE_VERSION=v0.20.7
 ARG TARGETOS
 ARG TARGETARCH
 RUN (if [[ "${TARGETARCH}" = "amd64" ]]; then curl -fsSL https://github.com/google/go-containerregistry/releases/download/${CRANE_VERSION}/go-containerregistry_${TARGETOS}_x86_64.tar.gz -o crane.tar.gz; \
@@ -45,7 +45,7 @@ RUN (if [[ "${TARGETARCH}" = "amd64" ]]; then curl -fsSL https://github.com/goog
   && rm crane.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS helm
-ARG HELM_VERSION=4.0.0
+ARG HELM_VERSION=4.0.1
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz -o helm.tar.gz \
@@ -127,8 +127,8 @@ RUN virtualenv /opt/uv \
   && /opt/uv/bin/pip install uv==${UV_VERSION} \
   && ln -s /opt/uv/bin/uv /usr/bin/
 
-ARG ANSIBLE_LINT_VERSION=25.11.0
-ARG RUFF_VERSION=0.14.5
+ARG ANSIBLE_LINT_VERSION=25.11.1
+ARG RUFF_VERSION=0.14.6
 ARG YAMLLINT_VERSION=1.37.1
 RUN uv tool install ansible-lint==${ANSIBLE_LINT_VERSION} \
   && uv tool install ruff==${RUFF_VERSION} \
