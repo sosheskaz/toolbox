@@ -1,5 +1,5 @@
 ARG CRANE_VERSION=v0.20.7
-ARG GO_VERSION=1.25.4
+ARG GO_VERSION=1.25.5
 ARG GOLANGCI_LINT_VERSION=v2.6.2
 ARG HADOLINT_VERSION=v2.14.0
 ARG HELM_VERSION=4.0.1
@@ -127,8 +127,8 @@ RUN virtualenv /opt/uv \
   && /opt/uv/bin/pip install uv==${UV_VERSION} \
   && ln -s /opt/uv/bin/uv /usr/bin/
 
-ARG ANSIBLE_LINT_VERSION=25.11.1
-ARG RUFF_VERSION=0.14.6
+ARG ANSIBLE_LINT_VERSION=25.12.0
+ARG RUFF_VERSION=0.14.7
 ARG YAMLLINT_VERSION=1.37.1
 RUN uv tool install ansible-lint==${ANSIBLE_LINT_VERSION} \
   && uv tool install ruff==${RUFF_VERSION} \
