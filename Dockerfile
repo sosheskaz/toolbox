@@ -3,7 +3,7 @@ ARG GO_VERSION=1.25.5
 ARG GOLANGCI_LINT_VERSION=v2.7.2
 ARG HADOLINT_VERSION=v2.14.0
 ARG HELM_VERSION=4.0.4
-ARG KUBECTL_VERSION=1.34.3
+ARG KUBECTL_VERSION=1.35.0
 ARG SHELLCHECK_VERSION=v0.11.0
 ARG YQ_VERSION=4.50.1
 ARG DEBIAN_VERSION=13.2
@@ -54,14 +54,14 @@ RUN curl -fsSL https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARC
   && rm -rf ${TARGETOS}-${TARGETARCH} helm.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS kubectl
-ARG KUBECTL_VERSION=1.34.3
+ARG KUBECTL_VERSION=1.35.0
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL --compressed https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/${TARGETOS}/${TARGETARCH}/kubectl -o /kubectl \
   && chmod +x /kubectl
 
 FROM --platform=$BUILDPLATFORM downloader AS kube-linter
-ARG KUBE_LINTER_VERSION=0.7.6
+ARG KUBE_LINTER_VERSION=0.8.1
 ARG TARGETOS
 ARG TARGETARCH
 RUN suffix=${TARGETOS}_${TARGETARCH}; if [[ "${TARGETARCH}" == "amd64" ]]; then suffix="${TARGETOS}"; fi; \
@@ -127,8 +127,8 @@ RUN virtualenv /opt/uv \
   && /opt/uv/bin/pip install uv==${UV_VERSION} \
   && ln -s /opt/uv/bin/uv /usr/bin/
 
-ARG ANSIBLE_LINT_VERSION=25.12.1
-ARG RUFF_VERSION=0.14.9
+ARG ANSIBLE_LINT_VERSION=25.12.2
+ARG RUFF_VERSION=0.14.10
 ARG YAMLLINT_VERSION=1.37.1
 RUN uv tool install ansible-lint==${ANSIBLE_LINT_VERSION} \
   && uv tool install ruff==${RUFF_VERSION} \
