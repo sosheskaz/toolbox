@@ -1,0 +1,16 @@
+# Baseline backup directories
+.baseline-backup-*
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local overrides
+*.local
