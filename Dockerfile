@@ -29,29 +29,29 @@ FROM --platform=$BUILDPLATFORM downloader AS kustomize
 ARG KUSTOMIZE_VERSION=v5.8.0
 ARG TARGETOS
 ARG TARGETARCH
-RUN curl -fsSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz -o kustomize.tar.gz \
-  && tar -xzf kustomize.tar.gz \
-  && mv kustomize /kustomize \
-  && rm kustomize.tar.gz
+RUN --mount=type=tmpfs,target=/tmp \
+  curl -fsSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz -o /tmp/kustomize.tar.gz \
+  && tar -xzf /tmp/kustomize.tar.gz \
+  && mv kustomize /kustomize
 
 FROM --platform=$BUILDPLATFORM downloader AS crane
 ARG CRANE_VERSION=v0.20.7
 ARG TARGETOS
 ARG TARGETARCH
-RUN (if [[ "${TARGETARCH}" = "amd64" ]]; then curl -fsSL https://github.com/google/go-containerregistry/releases/download/${CRANE_VERSION}/go-containerregistry_${TARGETOS}_x86_64.tar.gz -o crane.tar.gz; \
-  else curl -fsSL https://github.com/google/go-containerregistry/releases/download/${CRANE_VERSION}/go-containerregistry_${TARGETOS}_${TARGETARCH}.tar.gz -o crane.tar.gz; fi) \
-  && tar -xzf crane.tar.gz \
-  && mv crane /crane \
-  && rm crane.tar.gz
+RUN --mount=type=tmpfs,target=/tmp \
+  (if [ "${TARGETARCH}" = "amd64" ]; then curl -fsSL https://github.com/google/go-containerregistry/releases/download/${CRANE_VERSION}/go-containerregistry_${TARGETOS}_x86_64.tar.gz -o /tmp/crane.tar.gz; \
+  else curl -fsSL https://github.com/google/go-containerregistry/releases/download/${CRANE_VERSION}/go-containerregistry_${TARGETOS}_${TARGETARCH}.tar.gz -o /tmp/crane.tar.gz; fi) \
+  && tar -C /tmp -xzf /tmp/crane.tar.gz \
+  && mv /tmp/crane /crane
 
 FROM --platform=$BUILDPLATFORM downloader AS helm
 ARG HELM_VERSION=4.1.0
 ARG TARGETOS
 ARG TARGETARCH
-RUN curl -fsSL https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz -o helm.tar.gz \
-  && tar -xzf helm.tar.gz \
-  && mv ${TARGETOS}-${TARGETARCH}/helm /helm \
-  && rm -rf ${TARGETOS}-${TARGETARCH} helm.tar.gz
+RUN --mount=type=tmpfs,target=/tmp \
+  curl -fsSL https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz -o /tmp/helm.tar.gz \
+  && tar -C /tmp -xzf /tmp/helm.tar.gz \
+  && mv /tmp/${TARGETOS}-${TARGETARCH}/helm /helm
 
 FROM --platform=$BUILDPLATFORM downloader AS kubectl
 ARG KUBECTL_VERSION=1.35.0
@@ -64,36 +64,35 @@ FROM --platform=$BUILDPLATFORM downloader AS kube-linter
 ARG KUBE_LINTER_VERSION=0.8.1
 ARG TARGETOS
 ARG TARGETARCH
-RUN suffix=${TARGETOS}_${TARGETARCH}; if [[ "${TARGETARCH}" == "amd64" ]]; then suffix="${TARGETOS}"; fi; \
-  curl -fsSL https://github.com/stackrox/kube-linter/releases/download/v${KUBE_LINTER_VERSION}/kube-linter-${suffix}.tar.gz -o kube-linter.tar.gz \
-  && tar -C /usr/bin -xvzf kube-linter.tar.gz \
-  && rm kube-linter.tar.gz
+RUN --mount=type=tmpfs,target=/tmp \
+  suffix=${TARGETOS}_${TARGETARCH}; if [ "${TARGETARCH}" = "amd64" ]; then suffix="${TARGETOS}"; fi; \
+  curl -fsSL https://github.com/stackrox/kube-linter/releases/download/v${KUBE_LINTER_VERSION}/kube-linter-${suffix}.tar.gz -o /tmp/kube-linter.tar.gz \
+  && tar -C /usr/bin -xzf /tmp/kube-linter.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS kcl
 
 ARG KCL_VERSION=v0.10.0
 ARG TARGETOS
 ARG TARGETARCH
-RUN mkdir -p /tmp/kcl \
-  && cd /tmp/kcl \
-  && curl -fsSL https://github.com/kcl-lang/cli/releases/download/${KCL_VERSION}/kcl-${KCL_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz -o kcl.tar.gz \
-  && tar -xzf kcl.tar.gz \
-  && mv kcl /usr/bin/kcl \
-  && cd - \
-  && rm -rf /tmp/kcl
+RUN --mount=type=tmpfs,target=/tmp \
+  curl -fsSL https://github.com/kcl-lang/cli/releases/download/${KCL_VERSION}/kcl-${KCL_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz -o /tmp/kcl.tar.gz \
+  && tar -C /tmp -xzf /tmp/kcl.tar.gz \
+  && mv /tmp/kcl /usr/bin/kcl
 
 FROM --platform=$BUILDPLATFORM downloader AS gh
 ARG GITHUB_CLI_VERSION=2.86.0
 ARG TARGETOS
 ARG TARGETARCH
-RUN curl -fsSL https://github.com/cli/cli/releases/download/v${GITHUB_CLI_VERSION}/gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz -o gh.tar.gz \
-  && tar -xzf gh.tar.gz \
-  && mv gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}/bin/gh /usr/bin/gh \
-  && rm -rf gh.tar.gz gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}
+RUN --mount=type=tmpfs,target=/tmp \
+  curl -fsSL https://github.com/cli/cli/releases/download/v${GITHUB_CLI_VERSION}/gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz -o /tmp/gh.tar.gz \
+  && tar -C /tmp -xzf /tmp/gh.tar.gz \
+  && mv /tmp/gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}/bin/gh /usr/bin/gh
 
 FROM debian:${DEBIAN_VERSION} AS lite
 
-RUN apt-get update \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+  apt-get update \
   && apt-get install -y --no-install-recommends \
     bash \
     curl \
@@ -105,22 +104,20 @@ RUN apt-get update \
     inetutils-ping \
     jq \
     wget \
-    xxd \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+    xxd
 
 COPY --from=yq /usr/bin/yq /usr/bin/yq
 COPY --from=crane /crane /usr/bin/crane
 
 FROM lite AS lint
 
-RUN apt-get update \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+  apt-get update \
   && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
-    python3-virtualenv \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+    python3-virtualenv
 
 ARG UV_VERSION=0.7.8
 RUN virtualenv /opt/uv \
@@ -145,13 +142,13 @@ COPY --from=kube-linter /usr/bin/kube-linter /usr/bin/kube-linter
 
 FROM lite AS standard
 
-RUN apt-get update \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+  apt-get update \
   && apt-get install -y --no-install-recommends \
     curl \
     git \
-    ncat \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+    ncat
 
 COPY --from=helm /helm /usr/bin/helm
 COPY --from=kubectl /kubectl /usr/bin/kubectl
@@ -161,12 +158,12 @@ FROM standard AS heavy
 COPY --from=kcl /usr/bin/kcl /usr/bin/kcl
 COPY --from=gh /usr/bin/gh /usr/bin/gh
 
-RUN apt-get update \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+  apt-get update \
   && apt-get install -y --no-install-recommends \
     nmap \
     python3 \
-    python3-pip \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+    python3-pip
 
 FROM standard AS default
