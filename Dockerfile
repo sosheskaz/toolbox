@@ -1,6 +1,6 @@
 ARG CRANE_VERSION=v0.21.2
-ARG GO_VERSION=1.26.0
-ARG GOLANGCI_LINT_VERSION=v2.10.1
+ARG GO_VERSION=1.26.1
+ARG GOLANGCI_LINT_VERSION=v2.11.3
 ARG HADOLINT_VERSION=v2.14.0
 ARG HELM_VERSION=4.1.1
 ARG KUBECTL_VERSION=1.35.2
@@ -61,7 +61,7 @@ RUN curl -fsSL --compressed https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/${
   && chmod +x /kubectl
 
 FROM --platform=$BUILDPLATFORM downloader AS kube-linter
-ARG KUBE_LINTER_VERSION=0.8.1
+ARG KUBE_LINTER_VERSION=0.8.3
 ARG TARGETOS
 ARG TARGETARCH
 RUN suffix=${TARGETOS}_${TARGETARCH}; if [[ "${TARGETARCH}" == "amd64" ]]; then suffix="${TARGETOS}"; fi; \
@@ -83,7 +83,7 @@ RUN mkdir -p /tmp/kcl \
   && rm -rf /tmp/kcl
 
 FROM --platform=$BUILDPLATFORM downloader AS gh
-ARG GITHUB_CLI_VERSION=2.87.3
+ARG GITHUB_CLI_VERSION=2.88.0
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL https://github.com/cli/cli/releases/download/v${GITHUB_CLI_VERSION}/gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz -o gh.tar.gz \
@@ -127,8 +127,8 @@ RUN virtualenv /opt/uv \
   && /opt/uv/bin/pip install uv==${UV_VERSION} \
   && ln -s /opt/uv/bin/uv /usr/bin/
 
-ARG ANSIBLE_LINT_VERSION=26.2.0
-ARG RUFF_VERSION=0.15.4
+ARG ANSIBLE_LINT_VERSION=26.3.0
+ARG RUFF_VERSION=0.15.5
 ARG YAMLLINT_VERSION=1.38.0
 RUN uv tool install ansible-lint==${ANSIBLE_LINT_VERSION} \
   && uv tool install ruff==${RUFF_VERSION} \
