@@ -1,0 +1,17 @@
+# hadolint configuration
+# https://github.com/hadolint/hadolint#configure
+
+# Treat all warnings as errors in CI — no silent regressions.
+failure-threshold: warning
+
+ignored:
+  # DL3008: Pin versions in apt-get install.
+  # Intentionally unpinned — this is a toolbox image that tracks latest Debian
+  # packages via debian:$VERSION base. Pinning apt packages would silently pin
+  # to stale versions and defeat the purpose of dependabot + monthly rebuilds.
+  - DL3008
+
+  # DL3018: Pin versions in apk add.
+  # Same rationale as DL3008. The alpine downloader stage is ephemeral and only
+  # used to fetch versioned release tarballs — the apk packages are just curl/tar.
+  - DL3018
