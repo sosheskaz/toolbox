@@ -1,12 +1,12 @@
-ARG CRANE_VERSION=v0.21.2
-ARG GO_VERSION=1.26.0
-ARG GOLANGCI_LINT_VERSION=v2.10.1
+ARG CRANE_VERSION=v0.21.5
+ARG GO_VERSION=1.26.2
+ARG GOLANGCI_LINT_VERSION=v2.11.4
 ARG HADOLINT_VERSION=v2.14.0
-ARG HELM_VERSION=4.1.1
-ARG KUBECTL_VERSION=1.35.2
+ARG HELM_VERSION=4.1.4
+ARG KUBECTL_VERSION=1.35.4
 ARG SHELLCHECK_VERSION=v0.11.0
-ARG YQ_VERSION=4.52.4
-ARG DEBIAN_VERSION=13.3
+ARG YQ_VERSION=4.53.2
+ARG DEBIAN_VERSION=13.4
 
 FROM hadolint/hadolint:${HADOLINT_VERSION} AS hadolint
 FROM mikefarah/yq:${YQ_VERSION} AS yq
@@ -35,7 +35,7 @@ RUN curl -fsSL https://github.com/kubernetes-sigs/kustomize/releases/download/ku
   && rm kustomize.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS crane
-ARG CRANE_VERSION=v0.21.2
+ARG CRANE_VERSION=v0.21.5
 ARG TARGETOS
 ARG TARGETARCH
 RUN (if [[ "${TARGETARCH}" = "amd64" ]]; then curl -fsSL https://github.com/google/go-containerregistry/releases/download/${CRANE_VERSION}/go-containerregistry_${TARGETOS}_x86_64.tar.gz -o crane.tar.gz; \
@@ -45,7 +45,7 @@ RUN (if [[ "${TARGETARCH}" = "amd64" ]]; then curl -fsSL https://github.com/goog
   && rm crane.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS helm
-ARG HELM_VERSION=4.1.1
+ARG HELM_VERSION=4.1.4
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz -o helm.tar.gz \
@@ -54,14 +54,14 @@ RUN curl -fsSL https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARC
   && rm -rf ${TARGETOS}-${TARGETARCH} helm.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS kubectl
-ARG KUBECTL_VERSION=1.35.2
+ARG KUBECTL_VERSION=1.35.4
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL --compressed https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/${TARGETOS}/${TARGETARCH}/kubectl -o /kubectl \
   && chmod +x /kubectl
 
 FROM --platform=$BUILDPLATFORM downloader AS kube-linter
-ARG KUBE_LINTER_VERSION=0.8.1
+ARG KUBE_LINTER_VERSION=0.8.3
 ARG TARGETOS
 ARG TARGETARCH
 RUN suffix=${TARGETOS}_${TARGETARCH}; if [[ "${TARGETARCH}" == "amd64" ]]; then suffix="${TARGETOS}"; fi; \
@@ -83,7 +83,7 @@ RUN mkdir -p /tmp/kcl \
   && rm -rf /tmp/kcl
 
 FROM --platform=$BUILDPLATFORM downloader AS gh
-ARG GITHUB_CLI_VERSION=2.87.3
+ARG GITHUB_CLI_VERSION=2.90.0
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL https://github.com/cli/cli/releases/download/v${GITHUB_CLI_VERSION}/gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz -o gh.tar.gz \
@@ -127,8 +127,8 @@ RUN virtualenv /opt/uv \
   && /opt/uv/bin/pip install uv==${UV_VERSION} \
   && ln -s /opt/uv/bin/uv /usr/bin/
 
-ARG ANSIBLE_LINT_VERSION=26.2.0
-ARG RUFF_VERSION=0.15.4
+ARG ANSIBLE_LINT_VERSION=26.4.0
+ARG RUFF_VERSION=0.15.11
 ARG YAMLLINT_VERSION=1.38.0
 RUN uv tool install ansible-lint==${ANSIBLE_LINT_VERSION} \
   && uv tool install ruff==${RUFF_VERSION} \
