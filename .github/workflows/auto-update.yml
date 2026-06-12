@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     container: docker://ghcr.io/sosheskaz/toolbox:heavy
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: auto-update
         id: selfupdate
