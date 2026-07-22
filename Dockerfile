@@ -148,7 +148,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   && apt-get install -y --no-install-recommends \
     curl \
     git \
-    ncat
+    ncat \
+    rsync
 
 COPY --from=helm /helm /usr/bin/helm
 COPY --from=kubectl /kubectl /usr/bin/kubectl
