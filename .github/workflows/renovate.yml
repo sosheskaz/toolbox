@@ -1,0 +1,89 @@
+name: Renovate
+
+on:  # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 */6 * * *'
+  pull_request:
+    paths:
+      - renovate.json
+      - mise.toml
+      - .github/workflows/renovate.yml
+  workflow_dispatch:
+
+concurrency:
+  group: renovate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false  # a run killed mid-update leaves partial branches
+
+# Read-only. Renovate's repository init reads PRs, issues and check statuses even
+# in dry-run mode; declaring any permissions key makes the token deny-by-default,
+# so a bare `contents: read` fails init with platform-unknown-error. Real runs
+# authenticate with the GitHub App token minted below, not this one.
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  checks: read
+  statuses: read
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6.1.0
+        with:
+          persist-credentials: false
+
+      - name: Set up mise
+        uses: jdx/mise-action@9e7f7633ff6f6d6048a9418a68d48f288f50eb14  # v4.2.3
+        with:
+          install_args: node npm:renovate
+          cache: true
+
+      - name: Validate renovate config
+        run: renovate-config-validator renovate.json
+
+      # Scoped to what renovate actually needs rather than inheriting the App
+      # installation's blanket grants. workflows:write is what lets digest
+      # pinning edit .github/workflows/**.
+      - name: Create GitHub App token
+        id: app-token
+        if: github.event_name != 'pull_request'
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3.2.0
+        with:
+          client-id: ${{ vars.RENOVATE_APP_ID }}
+          private-key: ${{ secrets.RENOVATE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-issues: write
+          permission-pull-requests: write
+          permission-workflows: write
+          permission-checks: read
+          permission-statuses: write
+
+      # On pull requests this is a dry run against the PR branch, so config
+      # changes can be previewed before merge. requireConfig=optional is what
+      # makes that work on the PR that introduces renovate.json: without it,
+      # renovate looks for config on the default branch, finds none, logs
+      # disabled-no-config and exits 0 having validated nothing.
+      - name: Run renovate
+        env:
+          RENOVATE_TOKEN: ${{ github.event_name == 'pull_request' && github.token || steps.app-token.outputs.token }}
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          RENOVATE_ONBOARDING: 'false'
+          RENOVATE_REQUIRE_CONFIG: ${{ github.event_name == 'pull_request' && 'optional' || 'required' }}
+          RENOVATE_DRY_RUN: ${{ github.event_name == 'pull_request' && 'full' || '' }}
+          RENOVATE_BASE_BRANCHES: ${{ github.event_name == 'pull_request' && format('["{0}"]', github.head_ref) || '' }}
+          RENOVATE_USE_BASE_BRANCH_CONFIG: ${{ github.event_name == 'pull_request' && 'merge' || '' }}
+          # Seven of the Dockerfile's images come from Docker Hub, whose anonymous
+          # tag-list quota is shared across GitHub-hosted runner IPs. Fork PRs get
+          # no secrets, so this is gated off there rather than sending empty creds.
+          RENOVATE_HOST_RULES: >-
+            ${{ github.event_name != 'pull_request'
+            && format('[{{"matchHost":"docker.io","hostType":"docker","username":"{0}","password":"{1}"}}]',
+            secrets.DOCKER_USERNAME, secrets.DOCKER_PASSWORD)
+            || '' }}
+          LOG_LEVEL: info
+        run: renovate

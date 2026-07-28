@@ -1,0 +1,126 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommitTypeAll(deps)"
+  ],
+  "semanticCommits": "enabled",
+  "semanticCommitType": "deps",
+  "gitAuthor": "sosheskaz-renovate2[bot] <287589843+sosheskaz-renovate2[bot]@users.noreply.github.com>",
+  "schedule": [
+    "at any time"
+  ],
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 10,
+  "minimumReleaseAgeBehaviour": "timestamp-optional",
+  "ignorePaths": [
+    ".worktrees/**"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Read `# renovate:` annotations above Dockerfile ARGs consumed by download URLs",
+      "managerFilePatterns": [
+        "/(^|/)Dockerfile$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s+ARG \\S+=(?<currentValue>\\S+)"
+      ]
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Let a release settle before proposing it",
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "minimumReleaseAge": "14 days"
+    },
+    {
+      "description": "Image tool versions — the PR build is the gate",
+      "matchManagers": [
+        "dockerfile",
+        "custom.regex"
+      ],
+      "semanticCommitType": "build",
+      "semanticCommitScope": "image"
+    },
+    {
+      "description": "Patch bumps of image tools are low-risk once the build passes",
+      "matchManagers": [
+        "dockerfile",
+        "custom.regex"
+      ],
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "automerge": true
+    },
+    {
+      "matchManagers": [
+        "mise"
+      ],
+      "semanticCommitType": "ci",
+      "semanticCommitScope": "mise"
+    },
+    {
+      "matchManagers": [
+        "mise"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
+      "automerge": true
+    },
+    {
+      "description": "renovate requires node ^24; a node major bump breaks the CI runner",
+      "matchManagers": [
+        "mise"
+      ],
+      "matchDepNames": [
+        "node"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "semanticCommitType": "ci",
+      "semanticCommitScope": "actions",
+      "pinDigests": true,
+      "versioning": "semver",
+      "automerge": true
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "Majors always get a human",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "addLabels": [
+        "MAJOR UPDATE"
+      ],
+      "automerge": false
+    }
+  ]
+}

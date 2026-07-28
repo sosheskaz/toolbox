@@ -1,12 +1,37 @@
-ARG CRANE_VERSION=v0.21.7
+# Consumed by FROM. Renovate's dockerfile manager expands these natively, so they
+# must NOT carry a `# renovate:` annotation — that would register each twice.
+ARG ALPINE_VERSION=3.20
+ARG DEBIAN_VERSION=13.5
 ARG GO_VERSION=1.26.4
 ARG GOLANGCI_LINT_VERSION=v2.12.2
 ARG HADOLINT_VERSION=v2.14.0
-ARG HELM_VERSION=4.2.2
-ARG KUBECTL_VERSION=1.36.2
 ARG SHELLCHECK_VERSION=v0.11.0
 ARG YQ_VERSION=4.53.3
-ARG DEBIAN_VERSION=13.5
+
+# Consumed by download URLs. Tracked by the custom regex manager in renovate.json.
+# extractVersion reconciles the upstream tag shape with the value each URL needs.
+# renovate: datasource=github-releases depName=google/go-containerregistry
+ARG CRANE_VERSION=v0.21.7
+# renovate: datasource=github-releases depName=cli/cli extractVersion=^v(?<version>.+)$
+ARG GITHUB_CLI_VERSION=2.95.0
+# renovate: datasource=github-releases depName=helm/helm extractVersion=^v(?<version>.+)$
+ARG HELM_VERSION=4.2.2
+# renovate: datasource=github-releases depName=kcl-lang/cli
+ARG KCL_VERSION=v0.10.0
+# renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>.+)$
+ARG KUBECTL_VERSION=1.36.2
+# renovate: datasource=github-releases depName=stackrox/kube-linter extractVersion=^v(?<version>.+)$
+ARG KUBE_LINTER_VERSION=0.8.3
+# renovate: datasource=github-releases depName=kubernetes-sigs/kustomize extractVersion=^kustomize/(?<version>v.+)$
+ARG KUSTOMIZE_VERSION=v5.8.1
+# renovate: datasource=pypi depName=ansible-lint
+ARG ANSIBLE_LINT_VERSION=26.6.0
+# renovate: datasource=pypi depName=ruff
+ARG RUFF_VERSION=0.15.20
+# renovate: datasource=pypi depName=uv
+ARG UV_VERSION=0.7.8
+# renovate: datasource=pypi depName=yamllint
+ARG YAMLLINT_VERSION=1.38.0
 
 FROM hadolint/hadolint:${HADOLINT_VERSION} AS hadolint
 FROM mikefarah/yq:${YQ_VERSION} AS yq
@@ -14,7 +39,7 @@ FROM koalaman/shellcheck:${SHELLCHECK_VERSION} AS shellcheck
 FROM golang:${GO_VERSION} AS golang
 FROM golangci/golangci-lint:${GOLANGCI_LINT_VERSION} AS golangci-lint
 
-FROM --platform=$BUILDPLATFORM alpine:3.20 AS downloader
+FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS downloader
 
 RUN apk --no-cache add \
     curl \
@@ -26,7 +51,7 @@ RUN apk --no-cache add \
   && ln -s /usr/bin/pigz zcat
 
 FROM --platform=$BUILDPLATFORM downloader AS kustomize
-ARG KUSTOMIZE_VERSION=v5.8.1
+ARG KUSTOMIZE_VERSION
 ARG TARGETOS
 ARG TARGETARCH
 RUN --mount=type=tmpfs,target=/tmp \
@@ -35,7 +60,7 @@ RUN --mount=type=tmpfs,target=/tmp \
   && mv kustomize /kustomize
 
 FROM --platform=$BUILDPLATFORM downloader AS crane
-ARG CRANE_VERSION=v0.21.7
+ARG CRANE_VERSION
 ARG TARGETOS
 ARG TARGETARCH
 RUN --mount=type=tmpfs,target=/tmp \
@@ -45,7 +70,7 @@ RUN --mount=type=tmpfs,target=/tmp \
   && mv /tmp/crane /crane
 
 FROM --platform=$BUILDPLATFORM downloader AS helm
-ARG HELM_VERSION=4.2.2
+ARG HELM_VERSION
 ARG TARGETOS
 ARG TARGETARCH
 RUN --mount=type=tmpfs,target=/tmp \
@@ -54,14 +79,14 @@ RUN --mount=type=tmpfs,target=/tmp \
   && mv /tmp/${TARGETOS}-${TARGETARCH}/helm /helm
 
 FROM --platform=$BUILDPLATFORM downloader AS kubectl
-ARG KUBECTL_VERSION=1.36.2
+ARG KUBECTL_VERSION
 ARG TARGETOS
 ARG TARGETARCH
 RUN curl -fsSL --compressed https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/${TARGETOS}/${TARGETARCH}/kubectl -o /kubectl \
   && chmod +x /kubectl
 
 FROM --platform=$BUILDPLATFORM downloader AS kube-linter
-ARG KUBE_LINTER_VERSION=0.8.3
+ARG KUBE_LINTER_VERSION
 ARG TARGETOS
 ARG TARGETARCH
 RUN --mount=type=tmpfs,target=/tmp \
@@ -71,7 +96,7 @@ RUN --mount=type=tmpfs,target=/tmp \
 
 FROM --platform=$BUILDPLATFORM downloader AS kcl
 
-ARG KCL_VERSION=v0.10.0
+ARG KCL_VERSION
 ARG TARGETOS
 ARG TARGETARCH
 RUN --mount=type=tmpfs,target=/tmp \
@@ -80,7 +105,7 @@ RUN --mount=type=tmpfs,target=/tmp \
   && mv /tmp/kcl /usr/bin/kcl
 
 FROM --platform=$BUILDPLATFORM downloader AS gh
-ARG GITHUB_CLI_VERSION=2.95.0
+ARG GITHUB_CLI_VERSION
 ARG TARGETOS
 ARG TARGETARCH
 RUN --mount=type=tmpfs,target=/tmp \
@@ -119,14 +144,14 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     python3-pip \
     python3-virtualenv
 
-ARG UV_VERSION=0.7.8
+ARG UV_VERSION
 RUN virtualenv /opt/uv \
   && /opt/uv/bin/pip install uv==${UV_VERSION} \
   && ln -s /opt/uv/bin/uv /usr/bin/
 
-ARG ANSIBLE_LINT_VERSION=26.6.0
-ARG RUFF_VERSION=0.15.20
-ARG YAMLLINT_VERSION=1.38.0
+ARG ANSIBLE_LINT_VERSION
+ARG RUFF_VERSION
+ARG YAMLLINT_VERSION
 RUN uv tool install ansible-lint==${ANSIBLE_LINT_VERSION} \
   && uv tool install ruff==${RUFF_VERSION} \
   && uv tool install yamllint==${YAMLLINT_VERSION}

@@ -1,6 +1,9 @@
 # Baseline backup directories
 .baseline-backup-*
 
+# Nested git worktrees
+.worktrees/
+
 # Editor directories and files
 .idea/
 .vscode/
