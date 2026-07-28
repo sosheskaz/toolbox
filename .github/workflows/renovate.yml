@@ -63,12 +63,31 @@ jobs:
           permission-checks: read
           permission-statuses: write
 
+      # useBaseBranchConfig resolves the config file *name* from the default
+      # branch, so the dry run cannot work until renovate.json exists there — a
+      # bootstrap PR fails with `Error fetching config file `` from branch`.
+      # Skip the dry run in that window; the validator step above still gates
+      # config syntax.
+      - name: Check for config on default branch
+        id: default-config
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          if gh api "repos/${REPO}/contents/renovate.json" --jq .name > /dev/null 2>&1; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::renovate.json is not on the default branch yet; skipping dry run (config validation still ran)"
+          fi
+
       # On pull requests this is a dry run against the PR branch, so config
-      # changes can be previewed before merge. requireConfig=optional is what
-      # makes that work on the PR that introduces renovate.json: without it,
-      # renovate looks for config on the default branch, finds none, logs
-      # disabled-no-config and exits 0 having validated nothing.
+      # changes can be previewed before merge. requireConfig=optional keeps
+      # renovate from short-circuiting to disabled-no-config and exiting 0
+      # having validated nothing.
       - name: Run renovate
+        if: github.event_name != 'pull_request' || steps.default-config.outputs.present == 'true'
         env:
           RENOVATE_TOKEN: ${{ github.event_name == 'pull_request' && github.token || steps.app-token.outputs.token }}
           RENOVATE_REPOSITORIES: ${{ github.repository }}
