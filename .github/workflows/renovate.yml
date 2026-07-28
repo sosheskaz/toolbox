@@ -74,8 +74,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
         run: |
-          if gh api "repos/${REPO}/contents/renovate.json" --jq .name > /dev/null 2>&1; then
+          # RENOVATE_BASE_BRANCHES is github.head_ref, which for a fork PR names a
+          # branch that exists only in the fork — renovate would look for it here
+          # and fail.
+          if [ "${HEAD_REPO}" != "${REPO}" ]; then
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::pull request is from a fork; skipping dry run (config validation still ran)"
+          elif gh api "repos/${REPO}/contents/renovate.json" --jq .name > /dev/null 2>&1; then
             echo "present=true" >> "$GITHUB_OUTPUT"
           else
             echo "present=false" >> "$GITHUB_OUTPUT"
@@ -99,10 +106,13 @@ jobs:
           # Seven of the Dockerfile's images come from Docker Hub, whose anonymous
           # tag-list quota is shared across GitHub-hosted runner IPs. Fork PRs get
           # no secrets, so this is gated off there rather than sending empty creds.
+          # toJSON quotes and escapes each credential: plain interpolation would
+          # emit invalid JSON for a value containing a quote or backslash, which
+          # renovate discards silently, falling back to the anonymous quota.
           RENOVATE_HOST_RULES: >-
             ${{ github.event_name != 'pull_request'
-            && format('[{{"matchHost":"docker.io","hostType":"docker","username":"{0}","password":"{1}"}}]',
-            secrets.DOCKER_USERNAME, secrets.DOCKER_PASSWORD)
+            && format('[{{"matchHost":"docker.io","hostType":"docker","username":{0},"password":{1}}}]',
+            toJSON(secrets.DOCKER_USERNAME), toJSON(secrets.DOCKER_PASSWORD))
             || '' }}
           LOG_LEVEL: info
         run: renovate
