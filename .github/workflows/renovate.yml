@@ -1,9 +1,18 @@
 name: Renovate
 
 on:  # yamllint disable-line rule:truthy
+  # The cron is the cadence. A push run exists only to apply a config change
+  # immediately instead of waiting up to six hours for the next scheduled run,
+  # so it is filtered to the files that decide renovate's behaviour. Keep this
+  # list identical to the pull_request one below (Actions does not support YAML
+  # anchors, so it has to be repeated).
   push:
     branches:
       - main
+    paths:
+      - renovate.json
+      - mise.toml
+      - .github/workflows/renovate.yml
   schedule:
     - cron: '0 */6 * * *'
   pull_request:
