@@ -2,7 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    ":semanticCommitTypeAll(deps)"
+    "helpers:pinGitHubActionDigestsToSemver"
   ],
   "semanticCommits": "enabled",
   "semanticCommitType": "deps",
@@ -48,8 +48,19 @@
         "dockerfile",
         "custom.regex"
       ],
-      "semanticCommitType": "build",
+      "semanticCommitType": "fix",
       "semanticCommitScope": "image"
+    },
+    {
+      "description": "A major image tool bump changes what the image ships",
+      "matchManagers": [
+        "dockerfile",
+        "custom.regex"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "semanticCommitType": "feat"
     },
     {
       "description": "Patch bumps of image tools are low-risk once the build passes",
@@ -98,18 +109,7 @@
       ],
       "semanticCommitType": "ci",
       "semanticCommitScope": "actions",
-      "pinDigests": true,
-      "versioning": "semver",
       "automerge": true
-    },
-    {
-      "matchManagers": [
-        "github-actions"
-      ],
-      "matchUpdateTypes": [
-        "major"
-      ],
-      "automerge": false
     },
     {
       "description": "Majors always get a human",
