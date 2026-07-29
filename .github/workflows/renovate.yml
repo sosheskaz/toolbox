@@ -46,12 +46,50 @@ jobs:
       - name: Validate renovate config
         run: renovate-config-validator renovate.json
 
+      # Resolve every managed dependency against its real datasource, against the
+      # checked-out tree rather than the platform. This is what catches a wrong
+      # datasource or extractVersion — those break a *future* renovate run, not
+      # the PR that introduces them. Renovate logs lookup failures at trace level
+      # and still exits 0, so the assertion reads the structured report instead.
+      # A dep with an explicit skipReason (ubuntu-latest, unpinned mise) is
+      # intentionally unresolved and does not count as a failure.
+      - name: Renovate lookup (local platform)
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_COM_TOKEN: ${{ github.token }}
+          RENOVATE_REPORT_TYPE: file
+          RENOVATE_REPORT_PATH: ${{ runner.temp }}/renovate-report.json
+        run: |
+          renovate --platform=local --dry-run=lookup
+
+          report="${RUNNER_TEMP}/renovate-report.json"
+          unresolved=$(jq -r '
+            .repositories["local"].packageFiles
+            | to_entries[] | .key as $mgr
+            | .value[].deps[]
+            | select((.currentVersion == null and .skipReason == null)
+                     or ((.warnings // []) | length) > 0)
+            | "\($mgr): \(.depName) (current: \(.currentValue // "unset"))"
+          ' "$report")
+
+          if [ -n "$unresolved" ]; then
+            echo "::error::renovate could not resolve these dependencies; check datasource / extractVersion"
+            echo "$unresolved"
+            exit 1
+          fi
+
+          echo "All dependencies resolved. Extracted per manager:"
+          jq -r '.repositories["local"].packageFiles | to_entries[]
+                 | "  \(.key): \([.value[].deps[]] | length)"' "$report"
+
       # Scoped to what renovate actually needs rather than inheriting the App
       # installation's blanket grants. workflows:write is what lets digest
       # pinning edit .github/workflows/**.
       - name: Create GitHub App token
         id: app-token
-        if: github.event_name != 'pull_request'
+        # TEMPORARY: also mint on same-repo PRs to prove the App installation and
+        # credentials work before merge. Revert to `github.event_name != 'pull_request'`.
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3.2.0
         with:
           app-id: ${{ vars.RENOVATE_APP_ID }}
