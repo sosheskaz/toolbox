@@ -16,8 +16,6 @@ ARG CRANE_VERSION=v0.21.7
 ARG GITHUB_CLI_VERSION=2.96.0
 # renovate: datasource=github-releases depName=helm/helm extractVersion=^v(?<version>.+)$
 ARG HELM_VERSION=4.2.3
-# renovate: datasource=github-releases depName=kcl-lang/cli
-ARG KCL_VERSION=v0.10.0
 # renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>.+)$
 ARG KUBECTL_VERSION=1.36.2
 # renovate: datasource=github-releases depName=stackrox/kube-linter extractVersion=^v(?<version>.+)$
@@ -93,16 +91,6 @@ RUN --mount=type=tmpfs,target=/tmp \
   suffix=${TARGETOS}_${TARGETARCH}; if [ "${TARGETARCH}" = "amd64" ]; then suffix="${TARGETOS}"; fi; \
   curl -fsSL https://github.com/stackrox/kube-linter/releases/download/v${KUBE_LINTER_VERSION}/kube-linter-${suffix}.tar.gz -o /tmp/kube-linter.tar.gz \
   && tar -C /usr/bin -xzf /tmp/kube-linter.tar.gz
-
-FROM --platform=$BUILDPLATFORM downloader AS kcl
-
-ARG KCL_VERSION
-ARG TARGETOS
-ARG TARGETARCH
-RUN --mount=type=tmpfs,target=/tmp \
-  curl -fsSL https://github.com/kcl-lang/cli/releases/download/${KCL_VERSION}/kcl-${KCL_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz -o /tmp/kcl.tar.gz \
-  && tar -C /tmp -xzf /tmp/kcl.tar.gz \
-  && mv /tmp/kcl /usr/bin/kcl
 
 FROM --platform=$BUILDPLATFORM downloader AS gh
 ARG GITHUB_CLI_VERSION
@@ -181,7 +169,6 @@ COPY --from=kubectl /kubectl /usr/bin/kubectl
 COPY --from=kustomize /kustomize /usr/bin/kustomize
 
 FROM standard AS heavy
-COPY --from=kcl /usr/bin/kcl /usr/bin/kcl
 COPY --from=gh /usr/bin/gh /usr/bin/gh
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
