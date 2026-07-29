@@ -6,7 +6,6 @@
   ],
   "semanticCommits": "enabled",
   "semanticCommitType": "deps",
-  "gitAuthor": "sosheskaz-renovate2[bot] <287589843+sosheskaz-renovate2[bot]@users.noreply.github.com>",
   "schedule": [
     "at any time"
   ],
