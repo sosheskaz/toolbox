@@ -1,7 +1,7 @@
 # Consumed by FROM. Renovate's dockerfile manager expands these natively, so they
 # must NOT carry a `# renovate:` annotation — that would register each twice.
 ARG ALPINE_VERSION=3.24
-ARG DEBIAN_VERSION=13.5
+ARG DEBIAN_VERSION=13.6
 ARG GO_VERSION=1.26.5
 ARG GOLANGCI_LINT_VERSION=v2.12.2
 ARG HADOLINT_VERSION=v2.14.0
