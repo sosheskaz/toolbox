@@ -70,6 +70,5 @@ Includes everything in **standard**, plus:
 | Tool | Description |
 |------|-------------|
 | gh | GitHub CLI |
-| kcl | KCL configuration language CLI |
 | nmap | Network scanner |
 | python3 | Python runtime |
