@@ -12,6 +12,7 @@
   "prHourlyLimit": 0,
   "prConcurrentLimit": 10,
   "minimumReleaseAgeBehaviour": "timestamp-optional",
+  "osvVulnerabilityAlerts": true,
   "ignorePaths": [
     ".worktrees/**"
   ],
