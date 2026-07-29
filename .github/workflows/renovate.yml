@@ -92,7 +92,9 @@ jobs:
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3.2.0
         with:
-          app-id: ${{ vars.RENOVATE_APP_ID }}
+          # Accepts a numeric App ID as well as a client ID; both become the JWT
+          # `iss` claim. The `app-id` alias is deprecated.
+          client-id: ${{ vars.RENOVATE_APP_ID }}
           private-key: ${{ secrets.RENOVATE_APP_PRIVATE_KEY }}
           permission-contents: write
           permission-issues: write
