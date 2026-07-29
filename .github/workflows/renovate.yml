@@ -87,9 +87,7 @@ jobs:
       # pinning edit .github/workflows/**.
       - name: Create GitHub App token
         id: app-token
-        # TEMPORARY: also mint on same-repo PRs to prove the App installation and
-        # credentials work before merge. Revert to `github.event_name != 'pull_request'`.
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        if: github.event_name != 'pull_request'
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3.2.0
         with:
           # Accepts a numeric App ID as well as a client ID; both become the JWT
