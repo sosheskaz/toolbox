@@ -25,7 +25,7 @@ ARG KUSTOMIZE_VERSION=v5.8.1
 # renovate: datasource=pypi depName=ansible-lint
 ARG ANSIBLE_LINT_VERSION=26.6.0
 # renovate: datasource=pypi depName=ruff
-ARG RUFF_VERSION=0.15.22
+ARG RUFF_VERSION=0.16.0
 # renovate: datasource=pypi depName=uv
 ARG UV_VERSION=0.11.31
 # renovate: datasource=pypi depName=yamllint
