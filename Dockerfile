@@ -27,7 +27,7 @@ ARG ANSIBLE_LINT_VERSION=26.6.0
 # renovate: datasource=pypi depName=ruff
 ARG RUFF_VERSION=0.16.0
 # renovate: datasource=pypi depName=uv
-ARG UV_VERSION=0.11.31
+ARG UV_VERSION=0.11.32
 # renovate: datasource=pypi depName=yamllint
 ARG YAMLLINT_VERSION=1.38.0
 
