@@ -44,6 +44,14 @@
       "minimumReleaseAge": "14 days"
     },
     {
+      "description": "Agent CLIs release constantly and the build is the gate; a soak period only holds the image at a stale version",
+      "matchDepNames": [
+        "anthropics/claude-code",
+        "openai/codex"
+      ],
+      "minimumReleaseAge": "0 days"
+    },
+    {
       "description": "Image tool versions — the PR build is the gate",
       "matchManagers": [
         "dockerfile",

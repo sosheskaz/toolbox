@@ -56,7 +56,10 @@ Includes everything in **lite**, plus:
 | Tool | Description |
 |------|-------------|
 | git | Version control |
+| less | Pager, used by `git` |
+| mise | Version manager; resolves a repo's own pinned toolchain |
 | ncat | Networking utility (nmap project) |
+| ripgrep | Fast recursive search (`rg`) |
 | kubectl | Kubernetes CLI |
 | helm | Kubernetes package manager |
 | kustomize | Kubernetes manifest customization |
@@ -71,4 +74,28 @@ Includes everything in **standard**, plus:
 |------|-------------|
 | gh | GitHub CLI |
 | nmap | Network scanner |
+| openssh-client | Git over SSH |
 | python3 | Python runtime |
+
+### claude
+
+Heavy, plus the Claude Code CLI.
+
+Includes everything in **heavy**, plus:
+
+| Tool | Description |
+|------|-------------|
+| claude | Claude Code CLI |
+
+### codex
+
+Heavy, plus the Codex CLI. Identical to **claude** except for the agent itself.
+
+Includes everything in **heavy**, plus:
+
+| Tool | Description |
+|------|-------------|
+| codex | Codex CLI |
+
+Both agents are installed with `mise` into `/opt/mise`, which is on `PATH` via
+its shims. Neither needs a Node.js runtime.

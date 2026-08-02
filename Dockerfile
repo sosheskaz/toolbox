@@ -22,6 +22,12 @@ ARG KUBECTL_VERSION=1.36.3
 ARG KUBE_LINTER_VERSION=0.8.3
 # renovate: datasource=github-releases depName=kubernetes-sigs/kustomize extractVersion=^kustomize/(?<version>v.+)$
 ARG KUSTOMIZE_VERSION=v5.8.1
+# renovate: datasource=github-releases depName=anthropics/claude-code extractVersion=^v(?<version>.+)$
+ARG CLAUDE_CODE_VERSION=2.1.220
+# renovate: datasource=github-releases depName=openai/codex extractVersion=^rust-v(?<version>.+)$
+ARG CODEX_VERSION=0.146.0
+# renovate: datasource=github-releases depName=jdx/mise extractVersion=^v(?<version>.+)$
+ARG MISE_VERSION=2026.8.0
 # renovate: datasource=pypi depName=ansible-lint
 ARG ANSIBLE_LINT_VERSION=26.6.0
 # renovate: datasource=pypi depName=ruff
@@ -101,6 +107,15 @@ RUN --mount=type=tmpfs,target=/tmp \
   && tar -C /tmp -xzf /tmp/gh.tar.gz \
   && mv /tmp/gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}/bin/gh /usr/bin/gh
 
+FROM --platform=$BUILDPLATFORM downloader AS mise
+ARG MISE_VERSION
+ARG TARGETARCH
+RUN --mount=type=tmpfs,target=/tmp \
+  arch=${TARGETARCH}; if [ "${TARGETARCH}" = "amd64" ]; then arch=x64; fi; \
+  curl -fsSL https://github.com/jdx/mise/releases/download/v${MISE_VERSION}/mise-v${MISE_VERSION}-linux-${arch}.tar.gz -o /tmp/mise.tar.gz \
+  && tar -C /tmp -xzf /tmp/mise.tar.gz \
+  && mv /tmp/mise/bin/mise /mise
+
 FROM debian:${DEBIAN_VERSION} AS lite
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -161,22 +176,50 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   && apt-get install -y --no-install-recommends \
     curl \
     git \
+    less \
     ncat \
+    ripgrep \
     rsync
 
 COPY --from=helm /helm /usr/bin/helm
 COPY --from=kubectl /kubectl /usr/bin/kubectl
 COPY --from=kustomize /kustomize /usr/bin/kustomize
+# mise resolves each repo's own pinned toolchain from its config, so the image
+# ships the launcher rather than a guess at which tools a repo wants.
+COPY --from=mise /mise /usr/bin/mise
 
 FROM standard AS heavy
 COPY --from=gh /usr/bin/gh /usr/bin/gh
+
+# mise data and config live outside $HOME so anything installed through it
+# resolves for whichever user the image runs as, not just root.
+ENV MISE_DATA_DIR=/opt/mise \
+    MISE_CONFIG_DIR=/opt/mise \
+    PATH=/opt/mise/shims:${PATH}
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
   apt-get update \
   && apt-get install -y --no-install-recommends \
     nmap \
+    openssh-client \
     python3 \
     python3-pip
+
+# Both agents ship a native binary, so mise installs them directly with no Node
+# runtime involved.
+FROM heavy AS claude
+ARG CLAUDE_CODE_VERSION
+
+RUN mise use -g -y claude@${CLAUDE_CODE_VERSION} \
+  && claude --version
+
+FROM heavy AS codex
+ARG CODEX_VERSION
+
+# codex ships helper binaries beside the entrypoint, so it is installed through
+# shims rather than symlinking one path out of the install directory.
+RUN mise use -g -y codex@${CODEX_VERSION} \
+  && codex --version
 
 FROM standard AS default

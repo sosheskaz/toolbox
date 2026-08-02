@@ -6,7 +6,7 @@ export DOCKER_BUILDKIT=1
 
 PLATFORMS=("linux/amd64" "linux/arm64")
 REPOS=("ericmiller/toolbox" "ghcr.io/sosheskaz/toolbox")
-TARGETS=(lite lint standard heavy)
+TARGETS=(lite lint standard heavy claude codex)
 
 # Layer cache lives beside the images on GHCR, one ref per target. The package is
 # public, so PR builds import it without credentials; only the push path has the
