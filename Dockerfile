@@ -22,6 +22,10 @@ ARG KUBECTL_VERSION=1.36.2
 ARG KUBE_LINTER_VERSION=0.8.3
 # renovate: datasource=github-releases depName=kubernetes-sigs/kustomize extractVersion=^kustomize/(?<version>v.+)$
 ARG KUSTOMIZE_VERSION=v5.8.1
+# renovate: datasource=node-version depName=node
+ARG NODE_VERSION=24.18.1
+# renovate: datasource=npm depName=@anthropic-ai/claude-code
+ARG CLAUDE_CODE_VERSION=2.1.220
 # renovate: datasource=pypi depName=ansible-lint
 ARG ANSIBLE_LINT_VERSION=26.6.0
 # renovate: datasource=pypi depName=ruff
@@ -101,6 +105,15 @@ RUN --mount=type=tmpfs,target=/tmp \
   && tar -C /tmp -xzf /tmp/gh.tar.gz \
   && mv /tmp/gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}/bin/gh /usr/bin/gh
 
+FROM --platform=$BUILDPLATFORM downloader AS node
+ARG NODE_VERSION
+ARG TARGETARCH
+RUN --mount=type=tmpfs,target=/tmp \
+  arch=${TARGETARCH}; if [ "${TARGETARCH}" = "amd64" ]; then arch=x64; fi; \
+  curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${arch}.tar.gz -o /tmp/node.tar.gz \
+  && mkdir -p /node \
+  && tar -C /node --strip-components=1 -xzf /tmp/node.tar.gz
+
 FROM debian:${DEBIAN_VERSION} AS lite
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -178,5 +191,16 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     nmap \
     python3 \
     python3-pip
+
+FROM heavy AS claude
+ARG CLAUDE_CODE_VERSION
+
+# The Node tarball unpacks straight into /usr/local, which is both npm's default
+# global prefix and already on PATH, so the `claude` shim needs no extra wiring.
+COPY --from=node /node /usr/local
+
+RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION} \
+  && npm cache clean --force \
+  && claude --version
 
 FROM standard AS default

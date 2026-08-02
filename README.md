@@ -72,3 +72,14 @@ Includes everything in **standard**, plus:
 | gh | GitHub CLI |
 | nmap | Network scanner |
 | python3 | Python runtime |
+
+### claude
+
+Heavy, plus the Claude Code CLI and the Node.js runtime it needs.
+
+Includes everything in **heavy**, plus:
+
+| Tool | Description |
+|------|-------------|
+| node | Node.js runtime (also provides `npm`) |
+| claude | Claude Code CLI |
