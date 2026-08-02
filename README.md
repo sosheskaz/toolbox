@@ -56,7 +56,10 @@ Includes everything in **lite**, plus:
 | Tool | Description |
 |------|-------------|
 | git | Version control |
+| less | Pager, used by `git` |
+| mise | Version manager; resolves a repo's own pinned toolchain |
 | ncat | Networking utility (nmap project) |
+| ripgrep | Fast recursive search (`rg`) |
 | kubectl | Kubernetes CLI |
 | helm | Kubernetes package manager |
 | kustomize | Kubernetes manifest customization |
@@ -71,37 +74,28 @@ Includes everything in **standard**, plus:
 |------|-------------|
 | gh | GitHub CLI |
 | nmap | Network scanner |
+| openssh-client | Git over SSH |
 | python3 | Python runtime |
 
 ### claude
 
-Heavy, plus coding-agent tooling and the Claude Code CLI.
+Heavy, plus the Claude Code CLI and the Node.js runtime it needs.
 
 Includes everything in **heavy**, plus:
 
 | Tool | Description |
 |------|-------------|
 | node | Node.js runtime (also provides `npm`) |
-| mise | Version manager; resolves a repo's own pinned toolchain |
-| uv | Python package manager |
-| ripgrep | Fast recursive search (`rg`) |
-| openssh-client | Git over SSH |
-| less | Pager, used by `git` |
 | claude | Claude Code CLI |
 
 ### codex
 
-Heavy, plus coding-agent tooling and the Codex CLI. Identical to **claude**
-except for the agent itself.
+Heavy, plus the Codex CLI and the Node.js runtime it needs. Identical to
+**claude** except for the agent itself.
 
 Includes everything in **heavy**, plus:
 
 | Tool | Description |
 |------|-------------|
 | node | Node.js runtime (also provides `npm`) |
-| mise | Version manager; resolves a repo's own pinned toolchain |
-| uv | Python package manager |
-| ripgrep | Fast recursive search (`rg`) |
-| openssh-client | Git over SSH |
-| less | Pager, used by `git` |
 | codex | Codex CLI |

@@ -187,12 +187,17 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   && apt-get install -y --no-install-recommends \
     curl \
     git \
+    less \
     ncat \
+    ripgrep \
     rsync
 
 COPY --from=helm /helm /usr/bin/helm
 COPY --from=kubectl /kubectl /usr/bin/kubectl
 COPY --from=kustomize /kustomize /usr/bin/kustomize
+# mise resolves each repo's own pinned toolchain from its config, so the image
+# ships the launcher rather than a guess at which tools a repo wants.
+COPY --from=mise /mise /usr/bin/mise
 
 FROM standard AS heavy
 COPY --from=gh /usr/bin/gh /usr/bin/gh
@@ -202,31 +207,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   apt-get update \
   && apt-get install -y --no-install-recommends \
     nmap \
+    openssh-client \
     python3 \
     python3-pip
 
 FROM heavy AS agent-base
 
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-  apt-get update \
-  && apt-get install -y --no-install-recommends \
-    less \
-    openssh-client \
-    python3-virtualenv \
-    ripgrep
-
 # The Node tarball unpacks straight into /usr/local, which is both npm's default
 # global prefix and already on PATH, so the agent shims need no extra wiring.
 COPY --from=node /node /usr/local
-# mise resolves each repo's own pinned toolchain from its config, so the image
-# ships the launcher rather than a guess at which tools a repo wants.
-COPY --from=mise /mise /usr/bin/mise
-
-ARG UV_VERSION
-RUN virtualenv /opt/uv \
-  && /opt/uv/bin/pip install uv==${UV_VERSION} \
-  && ln -s /opt/uv/bin/uv /usr/bin/
 
 FROM agent-base AS claude
 ARG CLAUDE_CODE_VERSION
