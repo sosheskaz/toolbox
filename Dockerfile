@@ -28,6 +28,8 @@ ARG NODE_VERSION=24.18.1
 ARG CLAUDE_CODE_VERSION=2.1.220
 # renovate: datasource=npm depName=@openai/codex
 ARG CODEX_VERSION=0.146.0
+# renovate: datasource=github-releases depName=jdx/mise extractVersion=^v(?<version>.+)$
+ARG MISE_VERSION=2026.8.0
 # renovate: datasource=pypi depName=ansible-lint
 ARG ANSIBLE_LINT_VERSION=26.6.0
 # renovate: datasource=pypi depName=ruff
@@ -116,6 +118,15 @@ RUN --mount=type=tmpfs,target=/tmp \
   && mkdir -p /node \
   && tar -C /node --strip-components=1 -xzf /tmp/node.tar.gz
 
+FROM --platform=$BUILDPLATFORM downloader AS mise
+ARG MISE_VERSION
+ARG TARGETARCH
+RUN --mount=type=tmpfs,target=/tmp \
+  arch=${TARGETARCH}; if [ "${TARGETARCH}" = "amd64" ]; then arch=x64; fi; \
+  curl -fsSL https://github.com/jdx/mise/releases/download/v${MISE_VERSION}/mise-v${MISE_VERSION}-linux-${arch}.tar.gz -o /tmp/mise.tar.gz \
+  && tar -C /tmp -xzf /tmp/mise.tar.gz \
+  && mv /tmp/mise/bin/mise /mise
+
 FROM debian:${DEBIAN_VERSION} AS lite
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -194,21 +205,38 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     python3 \
     python3-pip
 
-FROM heavy AS claude
-ARG CLAUDE_CODE_VERSION
+FROM heavy AS agent-base
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+  apt-get update \
+  && apt-get install -y --no-install-recommends \
+    less \
+    openssh-client \
+    python3-virtualenv \
+    ripgrep
 
 # The Node tarball unpacks straight into /usr/local, which is both npm's default
-# global prefix and already on PATH, so the `claude` shim needs no extra wiring.
+# global prefix and already on PATH, so the agent shims need no extra wiring.
 COPY --from=node /node /usr/local
+# mise resolves each repo's own pinned toolchain from its config, so the image
+# ships the launcher rather than a guess at which tools a repo wants.
+COPY --from=mise /mise /usr/bin/mise
+
+ARG UV_VERSION
+RUN virtualenv /opt/uv \
+  && /opt/uv/bin/pip install uv==${UV_VERSION} \
+  && ln -s /opt/uv/bin/uv /usr/bin/
+
+FROM agent-base AS claude
+ARG CLAUDE_CODE_VERSION
 
 RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION} \
   && npm cache clean --force \
   && claude --version
 
-FROM heavy AS codex
+FROM agent-base AS codex
 ARG CODEX_VERSION
-
-COPY --from=node /node /usr/local
 
 # The package selects a per-architecture native binary through optional
 # dependencies, so this install must run on the target platform, not the builder.

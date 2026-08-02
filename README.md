@@ -75,22 +75,33 @@ Includes everything in **standard**, plus:
 
 ### claude
 
-Heavy, plus the Claude Code CLI and the Node.js runtime it needs.
+Heavy, plus coding-agent tooling and the Claude Code CLI.
 
 Includes everything in **heavy**, plus:
 
 | Tool | Description |
 |------|-------------|
 | node | Node.js runtime (also provides `npm`) |
+| mise | Version manager; resolves a repo's own pinned toolchain |
+| uv | Python package manager |
+| ripgrep | Fast recursive search (`rg`) |
+| openssh-client | Git over SSH |
+| less | Pager, used by `git` |
 | claude | Claude Code CLI |
 
 ### codex
 
-Heavy, plus the Codex CLI and the Node.js runtime it needs.
+Heavy, plus coding-agent tooling and the Codex CLI. Identical to **claude**
+except for the agent itself.
 
 Includes everything in **heavy**, plus:
 
 | Tool | Description |
 |------|-------------|
 | node | Node.js runtime (also provides `npm`) |
+| mise | Version manager; resolves a repo's own pinned toolchain |
+| uv | Python package manager |
+| ripgrep | Fast recursive search (`rg`) |
+| openssh-client | Git over SSH |
+| less | Pager, used by `git` |
 | codex | Codex CLI |
