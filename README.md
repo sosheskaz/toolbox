@@ -83,3 +83,14 @@ Includes everything in **heavy**, plus:
 |------|-------------|
 | node | Node.js runtime (also provides `npm`) |
 | claude | Claude Code CLI |
+
+### codex
+
+Heavy, plus the Codex CLI and the Node.js runtime it needs.
+
+Includes everything in **heavy**, plus:
+
+| Tool | Description |
+|------|-------------|
+| node | Node.js runtime (also provides `npm`) |
+| codex | Codex CLI |

@@ -26,6 +26,8 @@ ARG KUSTOMIZE_VERSION=v5.8.1
 ARG NODE_VERSION=24.18.1
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
 ARG CLAUDE_CODE_VERSION=2.1.220
+# renovate: datasource=npm depName=@openai/codex
+ARG CODEX_VERSION=0.146.0
 # renovate: datasource=pypi depName=ansible-lint
 ARG ANSIBLE_LINT_VERSION=26.6.0
 # renovate: datasource=pypi depName=ruff
@@ -202,5 +204,16 @@ COPY --from=node /node /usr/local
 RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION} \
   && npm cache clean --force \
   && claude --version
+
+FROM heavy AS codex
+ARG CODEX_VERSION
+
+COPY --from=node /node /usr/local
+
+# The package selects a per-architecture native binary through optional
+# dependencies, so this install must run on the target platform, not the builder.
+RUN npm install -g @openai/codex@${CODEX_VERSION} \
+  && npm cache clean --force \
+  && codex --version
 
 FROM standard AS default
