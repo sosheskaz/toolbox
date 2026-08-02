@@ -79,23 +79,23 @@ Includes everything in **standard**, plus:
 
 ### claude
 
-Heavy, plus the Claude Code CLI and the Node.js runtime it needs.
+Heavy, plus the Claude Code CLI.
 
 Includes everything in **heavy**, plus:
 
 | Tool | Description |
 |------|-------------|
-| node | Node.js runtime (also provides `npm`) |
 | claude | Claude Code CLI |
 
 ### codex
 
-Heavy, plus the Codex CLI and the Node.js runtime it needs. Identical to
-**claude** except for the agent itself.
+Heavy, plus the Codex CLI. Identical to **claude** except for the agent itself.
 
 Includes everything in **heavy**, plus:
 
 | Tool | Description |
 |------|-------------|
-| node | Node.js runtime (also provides `npm`) |
 | codex | Codex CLI |
+
+Both agents are installed with `mise` into `/opt/mise`, which is on `PATH` via
+its shims. Neither needs a Node.js runtime.

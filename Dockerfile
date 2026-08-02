@@ -22,11 +22,9 @@ ARG KUBECTL_VERSION=1.36.2
 ARG KUBE_LINTER_VERSION=0.8.3
 # renovate: datasource=github-releases depName=kubernetes-sigs/kustomize extractVersion=^kustomize/(?<version>v.+)$
 ARG KUSTOMIZE_VERSION=v5.8.1
-# renovate: datasource=node-version depName=node
-ARG NODE_VERSION=24.18.1
-# renovate: datasource=npm depName=@anthropic-ai/claude-code
+# renovate: datasource=github-releases depName=anthropics/claude-code extractVersion=^v(?<version>.+)$
 ARG CLAUDE_CODE_VERSION=2.1.220
-# renovate: datasource=npm depName=@openai/codex
+# renovate: datasource=github-releases depName=openai/codex extractVersion=^rust-v(?<version>.+)$
 ARG CODEX_VERSION=0.146.0
 # renovate: datasource=github-releases depName=jdx/mise extractVersion=^v(?<version>.+)$
 ARG MISE_VERSION=2026.8.0
@@ -108,15 +106,6 @@ RUN --mount=type=tmpfs,target=/tmp \
   curl -fsSL https://github.com/cli/cli/releases/download/v${GITHUB_CLI_VERSION}/gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz -o /tmp/gh.tar.gz \
   && tar -C /tmp -xzf /tmp/gh.tar.gz \
   && mv /tmp/gh_${GITHUB_CLI_VERSION}_${TARGETOS}_${TARGETARCH}/bin/gh /usr/bin/gh
-
-FROM --platform=$BUILDPLATFORM downloader AS node
-ARG NODE_VERSION
-ARG TARGETARCH
-RUN --mount=type=tmpfs,target=/tmp \
-  arch=${TARGETARCH}; if [ "${TARGETARCH}" = "amd64" ]; then arch=x64; fi; \
-  curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${arch}.tar.gz -o /tmp/node.tar.gz \
-  && mkdir -p /node \
-  && tar -C /node --strip-components=1 -xzf /tmp/node.tar.gz
 
 FROM --platform=$BUILDPLATFORM downloader AS mise
 ARG MISE_VERSION
@@ -213,24 +202,25 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 FROM heavy AS agent-base
 
-# The Node tarball unpacks straight into /usr/local, which is both npm's default
-# global prefix and already on PATH, so the agent shims need no extra wiring.
-COPY --from=node /node /usr/local
+# Both agents ship a native binary, so mise installs them directly and no Node
+# runtime is needed. Data and config live outside $HOME so the shims resolve
+# whichever user the image runs as.
+ENV MISE_DATA_DIR=/opt/mise \
+    MISE_CONFIG_DIR=/opt/mise \
+    PATH=/opt/mise/shims:${PATH}
 
 FROM agent-base AS claude
 ARG CLAUDE_CODE_VERSION
 
-RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION} \
-  && npm cache clean --force \
+RUN mise use -g -y claude@${CLAUDE_CODE_VERSION} \
   && claude --version
 
 FROM agent-base AS codex
 ARG CODEX_VERSION
 
-# The package selects a per-architecture native binary through optional
-# dependencies, so this install must run on the target platform, not the builder.
-RUN npm install -g @openai/codex@${CODEX_VERSION} \
-  && npm cache clean --force \
+# codex ships helper binaries beside the entrypoint, so it is installed through
+# shims rather than symlinking one path out of the install directory.
+RUN mise use -g -y codex@${CODEX_VERSION} \
   && codex --version
 
 FROM standard AS default
