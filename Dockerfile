@@ -191,6 +191,12 @@ COPY --from=mise /mise /usr/bin/mise
 FROM standard AS heavy
 COPY --from=gh /usr/bin/gh /usr/bin/gh
 
+# mise data and config live outside $HOME so anything installed through it
+# resolves for whichever user the image runs as, not just root.
+ENV MISE_DATA_DIR=/opt/mise \
+    MISE_CONFIG_DIR=/opt/mise \
+    PATH=/opt/mise/shims:${PATH}
+
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
   apt-get update \
@@ -200,22 +206,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     python3 \
     python3-pip
 
-FROM heavy AS agent-base
-
-# Both agents ship a native binary, so mise installs them directly and no Node
-# runtime is needed. Data and config live outside $HOME so the shims resolve
-# whichever user the image runs as.
-ENV MISE_DATA_DIR=/opt/mise \
-    MISE_CONFIG_DIR=/opt/mise \
-    PATH=/opt/mise/shims:${PATH}
-
-FROM agent-base AS claude
+# Both agents ship a native binary, so mise installs them directly with no Node
+# runtime involved.
+FROM heavy AS claude
 ARG CLAUDE_CODE_VERSION
 
 RUN mise use -g -y claude@${CLAUDE_CODE_VERSION} \
   && claude --version
 
-FROM agent-base AS codex
+FROM heavy AS codex
 ARG CODEX_VERSION
 
 # codex ships helper binaries beside the entrypoint, so it is installed through
