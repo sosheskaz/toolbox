@@ -191,12 +191,6 @@ COPY --from=mise /mise /usr/bin/mise
 FROM standard AS heavy
 COPY --from=gh /usr/bin/gh /usr/bin/gh
 
-# mise data and config live outside $HOME so anything installed through it
-# resolves for whichever user the image runs as, not just root.
-ENV MISE_DATA_DIR=/opt/mise \
-    MISE_CONFIG_DIR=/opt/mise \
-    PATH=/opt/mise/shims:${PATH}
-
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
   apt-get update \
@@ -207,19 +201,25 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     python3-pip
 
 # Both agents ship a native binary, so mise installs them directly with no Node
-# runtime involved.
+# runtime involved. MISE_DATA_DIR is scoped to the RUN rather than set as ENV:
+# leaking it into the runtime would point every later `mise install` at this
+# root-owned directory, which fails for any non-root user.
 FROM heavy AS claude
 ARG CLAUDE_CODE_VERSION
 
-RUN mise use -g -y claude@${CLAUDE_CODE_VERSION} \
+RUN MISE_DATA_DIR=/opt/mise mise install -y claude@${CLAUDE_CODE_VERSION} \
+  && ln -s /opt/mise/installs/claude/${CLAUDE_CODE_VERSION}/claude /usr/bin/claude \
   && claude --version
 
 FROM heavy AS codex
 ARG CODEX_VERSION
 
-# codex ships helper binaries beside the entrypoint, so it is installed through
-# shims rather than symlinking one path out of the install directory.
-RUN mise use -g -y codex@${CODEX_VERSION} \
+# codex ships helper binaries beside its entrypoint, so the whole install
+# directory goes on PATH under a version-independent symlink rather than
+# linking the one binary out of it.
+ENV PATH=/opt/codex/bin:${PATH}
+RUN MISE_DATA_DIR=/opt/mise mise install -y codex@${CODEX_VERSION} \
+  && ln -s /opt/mise/installs/codex/${CODEX_VERSION} /opt/codex \
   && codex --version
 
 FROM standard AS default

@@ -97,5 +97,21 @@ Includes everything in **heavy**, plus:
 |------|-------------|
 | codex | Codex CLI |
 
-Both agents are installed with `mise` into `/opt/mise`, which is on `PATH` via
-its shims. Neither needs a Node.js runtime.
+Both agents are installed at build time with `mise` into `/opt/mise` and exposed
+on `PATH` directly, so no mise environment variables are set at runtime and
+`mise` still behaves normally for whichever user the container runs as. Neither
+agent needs a Node.js runtime.
+
+**Codex sandboxing.** Codex sandboxes model-generated shell commands with
+`bwrap`, which cannot create a user namespace inside an unprivileged container:
+
+```
+bwrap: No permissions to create a new namespace, likely because the kernel does
+not allow non-privileged user namespaces.
+```
+
+The container is already the isolation boundary, so pass
+`--sandbox danger-full-access` (or `--dangerously-bypass-approvals-and-sandbox`,
+which is documented for exactly this case) when running `codex exec` here. The
+image does not set either by default, so that the weaker posture is an explicit
+choice by the caller rather than something the image decides for them.
