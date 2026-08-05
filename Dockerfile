@@ -25,7 +25,7 @@ ARG KUSTOMIZE_VERSION=v5.8.1
 # renovate: datasource=github-releases depName=anthropics/claude-code extractVersion=^v(?<version>.+)$
 ARG CLAUDE_CODE_VERSION=2.1.222
 # renovate: datasource=github-releases depName=openai/codex extractVersion=^rust-v(?<version>.+)$
-ARG CODEX_VERSION=0.146.0
+ARG CODEX_VERSION=0.146.1
 # renovate: datasource=github-releases depName=jdx/mise extractVersion=^v(?<version>.+)$
 ARG MISE_VERSION=2026.8.0
 # renovate: datasource=pypi depName=ansible-lint
