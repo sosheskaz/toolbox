@@ -23,7 +23,7 @@ ARG KUBE_LINTER_VERSION=0.8.3
 # renovate: datasource=github-releases depName=kubernetes-sigs/kustomize extractVersion=^kustomize/(?<version>v.+)$
 ARG KUSTOMIZE_VERSION=v5.8.1
 # renovate: datasource=github-releases depName=anthropics/claude-code extractVersion=^v(?<version>.+)$
-ARG CLAUDE_CODE_VERSION=2.1.223
+ARG CLAUDE_CODE_VERSION=2.1.224
 # renovate: datasource=github-releases depName=openai/codex extractVersion=^rust-v(?<version>.+)$
 ARG CODEX_VERSION=0.146.1
 # renovate: datasource=github-releases depName=jdx/mise extractVersion=^v(?<version>.+)$
