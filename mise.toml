@@ -13,4 +13,4 @@ zizmor = "1.29.0"
 # renovate declares engines.node "^24.11.0"; a node major bump breaks it, so
 # renovate.json pins node to major 24.
 node = "24.19.0"
-"npm:renovate" = "44.30.3"
+"npm:renovate" = "44.30.4"
