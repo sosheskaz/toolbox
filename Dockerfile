@@ -6,7 +6,7 @@ ARG GO_VERSION=1.26.6
 ARG GOLANGCI_LINT_VERSION=v2.12.2
 ARG HADOLINT_VERSION=v2.15.1
 ARG SHELLCHECK_VERSION=v0.11.0
-ARG YQ_VERSION=4.53.3
+ARG YQ_VERSION=4.53.4
 
 # Consumed by download URLs. Tracked by the custom regex manager in renovate.json.
 # extractVersion reconciles the upstream tag shape with the value each URL needs.
