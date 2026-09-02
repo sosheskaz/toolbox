@@ -27,7 +27,7 @@ ARG CLAUDE_CODE_VERSION=2.1.258
 # renovate: datasource=github-releases depName=openai/codex extractVersion=^rust-v(?<version>.+)$
 ARG CODEX_VERSION=0.147.0
 # renovate: datasource=github-releases depName=jdx/mise extractVersion=^v(?<version>.+)$
-ARG MISE_VERSION=2026.8.12
+ARG MISE_VERSION=2026.8.14
 # renovate: datasource=pypi depName=ansible-lint
 ARG ANSIBLE_LINT_VERSION=26.6.0
 # renovate: datasource=pypi depName=ruff
