@@ -11,7 +11,7 @@ ARG YQ_VERSION=4.53.6
 # Consumed by download URLs. Tracked by the custom regex manager in renovate.json.
 # extractVersion reconciles the upstream tag shape with the value each URL needs.
 # renovate: datasource=github-releases depName=google/go-containerregistry
-ARG CRANE_VERSION=v0.21.9
+ARG CRANE_VERSION=v0.22.0
 # renovate: datasource=github-releases depName=cli/cli extractVersion=^v(?<version>.+)$
 ARG GITHUB_CLI_VERSION=2.98.0
 # renovate: datasource=github-releases depName=helm/helm extractVersion=^v(?<version>.+)$
