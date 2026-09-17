@@ -31,7 +31,7 @@ ARG MISE_VERSION=2026.9.4
 # renovate: datasource=pypi depName=ansible-lint
 ARG ANSIBLE_LINT_VERSION=26.8.0
 # renovate: datasource=pypi depName=ruff
-ARG RUFF_VERSION=0.16.6
+ARG RUFF_VERSION=0.16.7
 # renovate: datasource=pypi depName=uv
 ARG UV_VERSION=0.12.12
 # renovate: datasource=pypi depName=yamllint
