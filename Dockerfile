@@ -17,7 +17,7 @@ ARG GITHUB_CLI_VERSION=2.101.0
 # renovate: datasource=github-releases depName=helm/helm extractVersion=^v(?<version>.+)$
 ARG HELM_VERSION=4.3.0
 # renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>.+)$
-ARG KUBECTL_VERSION=1.37.0
+ARG KUBECTL_VERSION=1.37.1
 # renovate: datasource=github-releases depName=stackrox/kube-linter extractVersion=^v(?<version>.+)$
 ARG KUBE_LINTER_VERSION=0.8.3
 # renovate: datasource=github-releases depName=kubernetes-sigs/kustomize extractVersion=^kustomize/(?<version>v.+)$
