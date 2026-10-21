@@ -29,7 +29,7 @@ ARG CODEX_VERSION=0.163.0
 # renovate: datasource=github-releases depName=jdx/mise extractVersion=^v(?<version>.+)$
 ARG MISE_VERSION=2026.10.9
 # renovate: datasource=pypi depName=ansible-lint
-ARG ANSIBLE_LINT_VERSION=26.9.0
+ARG ANSIBLE_LINT_VERSION=26.10.1
 # renovate: datasource=pypi depName=ruff
 ARG RUFF_VERSION=0.17.0
 # renovate: datasource=pypi depName=uv
