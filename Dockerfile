@@ -15,7 +15,7 @@ ARG CRANE_VERSION=v0.22.1
 # renovate: datasource=github-releases depName=cli/cli extractVersion=^v(?<version>.+)$
 ARG GITHUB_CLI_VERSION=2.102.0
 # renovate: datasource=github-releases depName=helm/helm extractVersion=^v(?<version>.+)$
-ARG HELM_VERSION=4.3.0
+ARG HELM_VERSION=4.3.1
 # renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>.+)$
 ARG KUBECTL_VERSION=1.37.1
 # renovate: datasource=github-releases depName=stackrox/kube-linter extractVersion=^v(?<version>.+)$
