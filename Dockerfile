@@ -13,7 +13,7 @@ ARG YQ_VERSION=4.54.1
 # renovate: datasource=github-releases depName=google/go-containerregistry
 ARG CRANE_VERSION=v0.22.1
 # renovate: datasource=github-releases depName=cli/cli extractVersion=^v(?<version>.+)$
-ARG GITHUB_CLI_VERSION=2.102.0
+ARG GITHUB_CLI_VERSION=2.102.1
 # renovate: datasource=github-releases depName=helm/helm extractVersion=^v(?<version>.+)$
 ARG HELM_VERSION=4.3.1
 # renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>.+)$
